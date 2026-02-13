@@ -178,6 +178,40 @@ enum ENUM_CANAL_BANDAS_SAIDA
    SAIDA_CRUZAR_OPOSTA_FECHAR = 4
   };
 
+enum ENUM_CRUZAMENTO_FONTE_SINAL
+  {
+   CRUZAMENTO_FONTE_NAO_USAR = 0,
+   CRUZAMENTO_FONTE_FECHAMENTO_VELA = -2,
+   CRUZAMENTO_FONTE_ABERTURA_VELA = -3,
+   CRUZAMENTO_FONTE_MAXIMA_VELA = -4,
+   CRUZAMENTO_FONTE_MINIMA_VELA = -5,
+   CRUZAMENTO_FONTE_MEDIA_MOVEL = 1,
+   CRUZAMENTO_FONTE_VIDYA = 17,
+   CRUZAMENTO_FONTE_DEMA = 18,
+   CRUZAMENTO_FONTE_TEMA = 19,
+   CRUZAMENTO_FONTE_FRAMA = 20
+  };
+
+enum ENUM_CRUZAMENTO_ENTRADA
+  {
+   CRUZAMENTO_ENTRADA_NAO_USAR = 0,
+   CRUZAMENTO_ENTRADA_CRUZAMENTO = 1,
+   CRUZAMENTO_ENTRADA_CRUZAMENTO_FECHANDO = 2
+  };
+
+enum ENUM_CRUZAMENTO_SENTIDO
+  {
+   CRUZAMENTO_SENTIDO_TENDENCIA = 0,
+   CRUZAMENTO_SENTIDO_CONTRA_TENDENCIA = 1
+  };
+
+enum ENUM_CRUZAMENTO_SAIDA
+  {
+   CRUZAMENTO_SAIDA_NAO_USAR = 0,
+   CRUZAMENTO_SAIDA_CRUZAMENTO_OPOSTO = 1,
+   CRUZAMENTO_SAIDA_CRUZAR_OPOSTO_FECHAR = 2
+  };
+
 input group "1.Nome";
 input string Nome = "EaMin";
 
@@ -358,6 +392,13 @@ input int PeriodoDochian = 21;                           // Periodo
 input group "17.5.Canal ATR";
 input int PeriodoCanalATR = 14;                          // Periodo
 input double DesviosCanalATR = 2.0;                      // Desvios
+
+input group "18.Cruzamento de sinais";
+input ENUM_CRUZAMENTO_FONTE_SINAL SinalRapido = CRUZAMENTO_FONTE_MAXIMA_VELA;                    // Sinal rapido
+input ENUM_CRUZAMENTO_FONTE_SINAL SinalLento = CRUZAMENTO_FONTE_FECHAMENTO_VELA;                  // Sinal lento
+input ENUM_CRUZAMENTO_ENTRADA EntradaCruzamento = CRUZAMENTO_ENTRADA_CRUZAMENTO;                  // Entrada
+input ENUM_CRUZAMENTO_SENTIDO SentidoCruzamento = CRUZAMENTO_SENTIDO_CONTRA_TENDENCIA;            // Sentido
+input ENUM_CRUZAMENTO_SAIDA SaidaCruzamento = CRUZAMENTO_SAIDA_CRUZAMENTO_OPOSTO;                 // Saida
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
