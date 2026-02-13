@@ -142,6 +142,42 @@ enum ENUM_PERIODO_PAUSA
    PAUSA_SABADOS = 6
   };
 
+enum ENUM_CANAL_BANDAS_INDICADOR
+  {
+   BANDAS_NAO_USAR = 0,
+   BANDAS_BOLLINGER = 2,
+   BANDAS_ENVELOPES = 4,
+   BANDAS_KELTNER = 5,
+   BANDAS_DONCHIAN = 6,
+   BANDAS_ATR = 39
+  };
+
+enum ENUM_CANAL_BANDAS_ENTRADA
+  {
+   ENTRADA_NAO_USAR = 0,
+   ENTRADA_FECHOU_FORA = 1,
+   ENTRADA_FECHOU_DENTRO_SAIU = 2,
+   ENTRADA_FECHOU_DENTRO_FECHOU_FORA = 3,
+   ENTRADA_FECHOU_FORA_VOLTOU = 4,
+   ENTRADA_FECHOU_FORA_FECHOU_DENTRO = 5,
+   ENTRADA_ESTANDO_FORA = 6
+  };
+
+enum ENUM_CANAL_BANDAS_SENTIDO
+  {
+   SENTIDO_TENDENCIA = 0,
+   SENTIDO_CONTRA_TENDENCIA = 1
+  };
+
+enum ENUM_CANAL_BANDAS_SAIDA
+  {
+   SAIDA_NAO_USAR = 0,
+   SAIDA_CRUZAR_CENTRO = 1,
+   SAIDA_CRUZAR_CENTRO_FECHAR = 2,
+   SAIDA_CRUZAR_BANDA_OPOSTA = 3,
+   SAIDA_CRUZAR_OPOSTA_FECHAR = 4
+  };
+
 input group "1.Nome";
 input string Nome = "EaMin";
 
@@ -291,6 +327,37 @@ input double TamanhoMinimoVela = 0.0;                        // Tamanho minimo d
 input double TamanhoMaximoVela = 0.0;                        // Tamanho maximo da vela (em pontos)
 input double MinimoCorpoVela = 0.0;                          // Minimo do corpo da vela (em pontos)
 input double MaximoCorpoVela = 0.0;                          // Maximo do corpo da vela (em pontos)
+
+input group "17.Canal de bandas";
+input ENUM_CANAL_BANDAS_INDICADOR IndicadorCanalBandas = BANDAS_NAO_USAR;   // Indicador
+input ENUM_CANAL_BANDAS_ENTRADA EntradaCanalBandas = ENTRADA_NAO_USAR;       // Entrada
+input ENUM_CANAL_BANDAS_SENTIDO SentidoCanalBandas = SENTIDO_TENDENCIA;      // Sentido
+input ENUM_CANAL_BANDAS_SAIDA SaidaCanalBandas = SAIDA_NAO_USAR;             // Saida
+
+input group "17.1.Bandas de Bolinger";
+input int PeriodoBandasBolinger = 20;                    // Periodo
+input double DesviosBandasBolinger = 2.0;               // Desvios
+input int DeslocamentoBandasBolinger = 0;               // Deslocamento
+input ENUM_APPLIED_PRICE ModoPrecoBandasBolinger = PRICE_CLOSE; // Modo de preco
+
+input group "17.2.Envelopes";
+input int PeriodoEnvelopes = 14;                         // Periodo
+input int DeslocamentoEnvelopes = 0;                     // Deslocamento
+input ENUM_MA_METHOD TipoMediaEnvelopes = MODE_SMA;      // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoEnvelopes = PRICE_CLOSE; // Modo de preco
+input double DesviosEnvelopes = 1.0;                     // Desvios
+
+input group "17.3.Keltner";
+input int PeriodoKeltner = 20;                           // Periodo
+input double DesviosKeltner = 2.0;                       // Desvios
+input ENUM_MA_METHOD TipoMediaKeltner = MODE_SMA;        // Tipo de media
+
+input group "17.4.Dochian";
+input int PeriodoDochian = 21;                           // Periodo
+
+input group "17.5.Canal ATR";
+input int PeriodoCanalATR = 14;                          // Periodo
+input double DesviosCanalATR = 2.0;                      // Desvios
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
