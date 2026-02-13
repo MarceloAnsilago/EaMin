@@ -453,6 +453,62 @@ input double NivelSobrevenda = 2.0;                                             
 input ENUM_OSCILADOR_SENTIDO SentidoSobreCompraVenda = OSCILADOR_SENTIDO_TENDENCIA;              // Sentido
 input ENUM_OSCILADOR_SAIDA SaidaSobreCompraVenda = OSCILADOR_SAIDA_NAO_USAR;                     // Saida
 
+input group "19.1.MACD";
+input int EMARapidaMACD = 12;                               // EMA rapida
+input int EMALentaMACD = 26;                                // EMA lenta
+input int SinalMACD = 9;                                    // Sinal
+input ENUM_APPLIED_PRICE ModoPrecoMACD = PRICE_CLOSE;      // Modo de preco
+
+input group "19.2.Estocastico";
+input int KPeriodoEstocastico = 5;                          // K Periodo
+input int DPeriodoEstocastico = 3;                          // D Periodo
+input int LentidaoEstocastico = 3;                          // Lentidao
+input ENUM_MA_METHOD TipoMediaEstocastico = MODE_SMA;       // Tipo de media
+input ENUM_STO_PRICE TipoEstocastico = STO_LOWHIGH;         // Tipo estocastico
+
+input group "19.3.RSI";
+input int PeriodoRSI = 14;                                  // Periodo
+input ENUM_APPLIED_PRICE ModoPrecoRSI = PRICE_CLOSE;        // Modo de preco
+
+input group "19.4.MFI";
+input int PeriodoMFI = 14;                                  // Periodo
+input ENUM_APPLIED_VOLUME VolumeMFI = VOLUME_TICK;          // Volume
+
+input group "19.5.Bears Power";
+input int PeriodoBearsPower = 13;                           // Periodo
+
+input group "19.6.Bulls Power";
+input int PeriodoBullsPower = 13;                           // Periodo
+
+input group "19.7.Chaikin Oscilador";
+input int MediaRapidaChaikinOscilador = 3;                 // Media rapida
+input int MediaLentaChaikinOscilador = 10;                 // Media lenta
+input ENUM_MA_METHOD TipoMediaChaikinOscilador = MODE_SMA; // Tipo de media
+input ENUM_APPLIED_VOLUME VolumeChaikinOscilador = VOLUME_TICK; // Volume
+
+input group "19.8.CCI";
+input int PeriodoCCI = 14;                                  // Periodo
+input ENUM_APPLIED_PRICE ModoPrecoCCI = PRICE_CLOSE;        // Modo de preco
+
+input group "19.9.DeMarker";
+input int PeriodoDeMarker = 14;                             // Periodo
+
+input group "19.10.Regressao";
+input int PeriodoRegressao = 18;                            // Periodo
+input ENUM_MA_METHOD TipoMediaRegressao = MODE_SMA;         // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoRegressao = PRICE_CLOSE;  // Modo de preco
+
+input group "19.11.Afastamento da media";
+input int PeriodoAfastamentoMedia = 14;                     // Periodo
+input int DeslocamentoAfastamentoMedia = 0;                 // Deslocamento
+input ENUM_MA_METHOD TipoMediaAfastamentoMedia = MODE_SMA;  // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoAfastamentoMedia = PRICE_CLOSE; // Modo de preco
+
+input group "19.12.Desvio Medio";
+input int PeriodoDesvioMedio = 20;                          // Periodo
+input ENUM_MA_METHOD TipoMediaDesvioMedio = MODE_SMA;       // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoDesvioMedio = PRICE_CLOSE; // Modo de preco
+
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
