@@ -178,38 +178,83 @@ enum ENUM_CANAL_BANDAS_SAIDA
    SAIDA_CRUZAR_OPOSTA_FECHAR = 4
   };
 
-enum ENUM_CRUZAMENTO_FONTE_SINAL
+enum ENUM_SINAL_FONTE
   {
-   CRUZAMENTO_FONTE_NAO_USAR = 0,
-   CRUZAMENTO_FONTE_FECHAMENTO_VELA = -2,
-   CRUZAMENTO_FONTE_ABERTURA_VELA = -3,
-   CRUZAMENTO_FONTE_MAXIMA_VELA = -4,
-   CRUZAMENTO_FONTE_MINIMA_VELA = -5,
-   CRUZAMENTO_FONTE_MEDIA_MOVEL = 1,
-   CRUZAMENTO_FONTE_VIDYA = 17,
-   CRUZAMENTO_FONTE_DEMA = 18,
-   CRUZAMENTO_FONTE_TEMA = 19,
-   CRUZAMENTO_FONTE_FRAMA = 20
+   FONTE_NAO_USAR = 0,
+   FONTE_FECHAMENTO_VELA = -2,
+   FONTE_ABERTURA_VELA = -3,
+   FONTE_MAXIMA_VELA = -4,
+   FONTE_MINIMA_VELA = -5,
+   FONTE_MEDIA_MOVEL = 1,
+   FONTE_VIDYA = 17,
+   FONTE_DEMA = 18,
+   FONTE_TEMA = 19,
+   FONTE_FRAMA = 20
   };
 
-enum ENUM_CRUZAMENTO_ENTRADA
+enum ENUM_SINAL_ENTRADA
   {
-   CRUZAMENTO_ENTRADA_NAO_USAR = 0,
-   CRUZAMENTO_ENTRADA_CRUZAMENTO = 1,
-   CRUZAMENTO_ENTRADA_CRUZAMENTO_FECHANDO = 2
+   SINAL_ENTRADA_NAO_USAR = 0,
+   SINAL_ENTRADA_CRUZAMENTO = 1,
+   SINAL_ENTRADA_CRUZAMENTO_FECHANDO = 2
   };
 
-enum ENUM_CRUZAMENTO_SENTIDO
+enum ENUM_SINAL_SENTIDO
   {
-   CRUZAMENTO_SENTIDO_TENDENCIA = 0,
-   CRUZAMENTO_SENTIDO_CONTRA_TENDENCIA = 1
+   SINAL_SENTIDO_TENDENCIA = 0,
+   SINAL_SENTIDO_CONTRA_TENDENCIA = 1
   };
 
-enum ENUM_CRUZAMENTO_SAIDA
+enum ENUM_SINAL_SAIDA
   {
-   CRUZAMENTO_SAIDA_NAO_USAR = 0,
-   CRUZAMENTO_SAIDA_CRUZAMENTO_OPOSTO = 1,
-   CRUZAMENTO_SAIDA_CRUZAR_OPOSTO_FECHAR = 2
+   SINAL_SAIDA_NAO_USAR = 0,
+   SINAL_SAIDA_CRUZAMENTO_OPOSTO = 1,
+   SINAL_SAIDA_CRUZAR_OPOSTO_FECHAR = 2
+  };
+
+enum ENUM_OSCILADOR_INDICADOR
+  {
+   NAO_USAR = 0,
+   MACD = 3,
+   ESTOCASTICO = 7,
+   RSI = 8,
+   MFI = 16,
+   BEARS_POWER = 22,
+   BULLS_POWER = 23,
+   CHAIKIN_OSCILADOR = 24,
+   ACCELERATOR_OSCILADOR = 25,
+   AWESOME_OSCILADOR = 26,
+   CCI = 27,
+   DEMARKER = 28,
+   REGRESSAO = 36,
+   AFASTAMENTO_MEDIA = 37,
+   DESVIO_MEDIO = 38
+  };
+
+enum ENUM_OSCILADOR_ENTRADA
+  {
+   OSCILADOR_ENTRADA_NAO_USAR = 0,
+   OSCILADOR_ENTRADA_FECHOU_FORA = 1,
+   OSCILADOR_ENTRADA_FECHOU_DENTRO_SAIU = 2,
+   OSCILADOR_ENTRADA_FECHOU_DENTRO_FECHOU_FORA = 3,
+   OSCILADOR_ENTRADA_FECHOU_FORA_VOLTOU = 4,
+   OSCILADOR_ENTRADA_FECHOU_FORA_FECHOU_DENTRO = 5,
+   OSCILADOR_ENTRADA_ESTANDO_FORA = 6
+  };
+
+enum ENUM_OSCILADOR_SENTIDO
+  {
+   OSCILADOR_SENTIDO_TENDENCIA = 0,
+   OSCILADOR_SENTIDO_CONTRA_TENDENCIA = 1
+  };
+
+enum ENUM_OSCILADOR_SAIDA
+  {
+   OSCILADOR_SAIDA_NAO_USAR = 0,
+   OSCILADOR_SAIDA_CRUZAR_CENTRO = 1,
+   OSCILADOR_SAIDA_CRUZAR_CENTRO_FECHAR = 2,
+   OSCILADOR_SAIDA_CRUZAR_BANDA_OPOSTA = 3,
+   OSCILADOR_SAIDA_CRUZAR_OPOSTA_FECHAR = 4
   };
 
 input group "1.Nome";
@@ -394,11 +439,19 @@ input int PeriodoCanalATR = 14;                          // Periodo
 input double DesviosCanalATR = 2.0;                      // Desvios
 
 input group "18.Cruzamento de sinais";
-input ENUM_CRUZAMENTO_FONTE_SINAL SinalRapido = CRUZAMENTO_FONTE_MAXIMA_VELA;                    // Sinal rapido
-input ENUM_CRUZAMENTO_FONTE_SINAL SinalLento = CRUZAMENTO_FONTE_FECHAMENTO_VELA;                  // Sinal lento
-input ENUM_CRUZAMENTO_ENTRADA EntradaCruzamento = CRUZAMENTO_ENTRADA_CRUZAMENTO;                  // Entrada
-input ENUM_CRUZAMENTO_SENTIDO SentidoCruzamento = CRUZAMENTO_SENTIDO_CONTRA_TENDENCIA;            // Sentido
-input ENUM_CRUZAMENTO_SAIDA SaidaCruzamento = CRUZAMENTO_SAIDA_CRUZAMENTO_OPOSTO;                 // Saida
+input ENUM_SINAL_FONTE SinalRapido = FONTE_MAXIMA_VELA;                                            // Sinal rapido
+input ENUM_SINAL_FONTE SinalLento = FONTE_FECHAMENTO_VELA;                                         // Sinal lento
+input ENUM_SINAL_ENTRADA EntradaCruzamento = SINAL_ENTRADA_CRUZAMENTO;                             // Entrada
+input ENUM_SINAL_SENTIDO SentidoCruzamento = SINAL_SENTIDO_CONTRA_TENDENCIA;                       // Sentido
+input ENUM_SINAL_SAIDA SaidaCruzamento = SINAL_SAIDA_CRUZAMENTO_OPOSTO;                            // Saida
+
+input group "19.Sobre comprado/vendido";
+input ENUM_OSCILADOR_INDICADOR IndicadorSobreCompraVenda = ESTOCASTICO; // Indicador
+input ENUM_OSCILADOR_ENTRADA EntradaSobreCompraVenda = OSCILADOR_ENTRADA_NAO_USAR;               // Entrada
+input double NivelSobrecompra = 2.0;                                                              // Sobrecompra
+input double NivelSobrevenda = 2.0;                                                               // Sobrevenda
+input ENUM_OSCILADOR_SENTIDO SentidoSobreCompraVenda = OSCILADOR_SENTIDO_TENDENCIA;              // Sentido
+input ENUM_OSCILADOR_SAIDA SaidaSobreCompraVenda = OSCILADOR_SAIDA_NAO_USAR;                     // Saida
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
