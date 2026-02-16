@@ -228,7 +228,8 @@ enum ENUM_OSCILADOR_INDICADOR
    DEMARKER = 28,
    REGRESSAO = 36,
    AFASTAMENTO_MEDIA = 37,
-   DESVIO_MEDIO = 38
+   DESVIO_MEDIO = 38,
+   MARKET_FACILITATION_INDEX = 40
   };
 
 enum ENUM_OSCILADOR_ENTRADA
@@ -255,6 +256,53 @@ enum ENUM_OSCILADOR_SAIDA
    OSCILADOR_SAIDA_CRUZAR_CENTRO_FECHAR = 2,
    OSCILADOR_SAIDA_CRUZAR_BANDA_OPOSTA = 3,
    OSCILADOR_SAIDA_CRUZAR_OPOSTA_FECHAR = 4
+  };
+
+enum ENUM_CONFIGURAR_INDICADORES
+  {
+   CONFIG_IND_NAO_USAR = 0,                      // Nao usar
+   CONFIG_IND_EXTERNO = 30,                      // Externo
+   CONFIG_IND_KELTNER = 5,                       // Keltner
+   CONFIG_IND_DOCHIAN = 6,                       // Dochian
+   CONFIG_IND_REGRESSAO = 36,                    // Regressao
+   CONFIG_IND_AFASTAMENTO_MEDIA = 37,            // Afastamento da media
+   CONFIG_IND_DESVIO_MEDIO = 38,                 // Desvio Medio
+   CONFIG_IND_CANAL_ATR = 39,                    // Canal ATR
+   CONFIG_IND_MEDIA_MOVEL = 1,                   // Media Movel
+   CONFIG_IND_BANDAS_BOLINGER = 2,               // Bandas de Bolinger
+   CONFIG_IND_MACD = 3,                          // MACD
+   CONFIG_IND_ENVELOPES = 4,                     // Envelopes
+   CONFIG_IND_ESTOCASTICO = 7,                   // Estocastico
+   CONFIG_IND_RSI = 8,                           // Relative Strength Index (RSI)
+   CONFIG_IND_DESVIO_PADRAO = 9,                 // Desvio Padrao
+   CONFIG_IND_VOLUME = 10,                       // Volume
+   CONFIG_IND_ATR = 11,                          // Average True Range (ATR)
+   CONFIG_IND_PARABOLIC_SAR = 12,                // Parabolic SAR
+   CONFIG_IND_FRACTAL = 13,                      // Fractal
+   CONFIG_IND_OBV = 14,                          // On Balance Volume (OBV)
+   CONFIG_IND_ACUMULACAO_DISTRIBUICAO = 15,      // Acumulacao/Distribuicao (A/D)
+   CONFIG_IND_MFI = 16,                          // Money Flow Index (MFI)
+   CONFIG_IND_VIDYA = 17,                        // Vidya
+   CONFIG_IND_DEMA = 18,                         // Dema
+   CONFIG_IND_TEMA = 19,                         // Tema
+   CONFIG_IND_FRAMA = 20,                        // Frama
+   CONFIG_IND_TRIX = 21,                         // Trix
+   CONFIG_IND_BEARS_POWER = 22,                  // Bears Power
+   CONFIG_IND_BULLS_POWER = 23,                  // Bulls Power
+   CONFIG_IND_CHAIKIN_OSCILADOR = 24,            // Chaikin Oscilador
+   CONFIG_IND_ACCELERATOR_OSCILADOR = 25,        // Accelerator Oscilador
+   CONFIG_IND_AWESOME_OSCILADOR = 26,            // Awesome Oscilador
+   CONFIG_IND_CCI = 27,                          // Commodity Channel Index (CCI)
+   CONFIG_IND_DEMARKER = 28,                     // DeMarker
+   CONFIG_IND_ALLIGATOR = 29,                    // Alligator
+   CONFIG_IND_ICHIMOKU = 31,                     // Nuvem de Ichimoku
+   CONFIG_IND_ADX = 32,                          // Average Directional Index (ADX)
+   CONFIG_IND_ADX_WELLES_WILDER = 33,            // ADX Welles Wilder
+   CONFIG_IND_GATOR_OSCILADOR = 34,              // Gator Oscilador
+   CONFIG_IND_WPR = 35,                          // Williams Percent Range (WPR)
+   CONFIG_IND_MARKET_FACILITATION_INDEX = 40,    // Market Facilitation Index
+   CONFIG_IND_MOMENTUM = 41,                     // Momentum
+   CONFIG_IND_RVI = 42                           // Relative Vigor Index (RVI)
   };
 
 input group "1.Nome";
@@ -508,6 +556,67 @@ input group "19.12.Desvio Medio";
 input int PeriodoDesvioMedio = 20;                          // Periodo
 input ENUM_MA_METHOD TipoMediaDesvioMedio = MODE_SMA;       // Tipo de media
 input ENUM_APPLIED_PRICE ModoPrecoDesvioMedio = PRICE_CLOSE; // Modo de preco
+
+input group "19.13.Market Facilitation Index";
+input ENUM_APPLIED_VOLUME VolumeMarketFacilitationIndex = VOLUME_TICK; // Volume
+
+input group "20.Configurar indicadores";
+input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador1 = CONFIG_IND_BANDAS_BOLINGER; // Indicador 1
+input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador2 = CONFIG_IND_MACD;             // Indicador 2
+input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador3 = CONFIG_IND_ENVELOPES;        // Indicador 3
+input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador4 = CONFIG_IND_ESTOCASTICO;      // Indicador 4
+
+input group "20.1.Bandas de Bolinger";
+input int PeriodoIndicador1 = 20;                                 // Periodo
+input double DesviosIndicador1 = 2.0;                             // Desvios
+input int DeslocamentoIndicador1 = 0;                             // Deslocamento
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1 = PRICE_CLOSE;       // Modo de preco
+
+input group "20.2.MACD";
+input int EMARapidaIndicador2 = 12;                               // EMA rapida
+input int EMALentaIndicador2 = 26;                                // EMA lenta
+input int SinalIndicador2 = 9;                                    // Sinal
+input ENUM_APPLIED_PRICE ModoPrecoIndicador2 = PRICE_CLOSE;       // Modo de preco
+
+input group "20.3.Envelopes";
+input int PeriodoIndicador3 = 14;                                 // Periodo
+input int DeslocamentoIndicador3 = 0;                             // Deslocamento
+input ENUM_MA_METHOD TipoMediaIndicador3 = MODE_SMA;              // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador3 = PRICE_CLOSE;       // Modo de preco
+input double DesviosIndicador3 = 1.0;                             // Desvios
+
+input group "20.4.Estocastico";
+input int KPeriodoIndicador4 = 5;                                 // K Periodo
+input int DPeriodoIndicador4 = 3;                                 // D Periodo
+input int LentidaoIndicador4 = 3;                                 // Lentidao
+input ENUM_MA_METHOD TipoMediaIndicador4 = MODE_SMA;              // Tipo de media
+input ENUM_STO_PRICE TipoEstocasticoIndicador4 = STO_LOWHIGH;     // Tipo estocastico
+
+input group "20.5.RSI";
+input int PeriodoIndicador1RSI = 14;                              // Periodo
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1RSI = PRICE_CLOSE;    // Modo de preco
+
+input group "20.6.Desvio Padrao";
+input int PeriodoIndicador2DesvioPadrao = 20;                     // Periodo
+input int DeslocamentoIndicador2DesvioPadrao = 0;                 // Deslocamento
+input ENUM_MA_METHOD TipoMediaIndicador2DesvioPadrao = MODE_SMA;  // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador2DesvioPadrao = PRICE_CLOSE; // Modo de preco
+
+input group "20.7.Volume";
+input ENUM_APPLIED_VOLUME VolumeIndicador3 = VOLUME_TICK;         // Volume
+
+input group "20.8.ATR";
+input int PeriodoIndicador4ATR = 14;                              // Periodo
+
+input group "20.9.Parabolic SAR";
+input double PassoIndicador1ParabolicSAR = 0.02;                  // Passo
+input double MaximoIndicador1ParabolicSAR = 0.2;                  // Maximo
+
+input group "20.10.Fractal";
+// Fractal nao requer parametros
+
+input group "20.11.OBV";
+input ENUM_APPLIED_VOLUME VolumeIndicador3OBV = VOLUME_TICK;      // Volume
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
