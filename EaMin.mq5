@@ -71,7 +71,19 @@ enum ENUM_MODO_ORDEM
 enum ENUM_REFERENCIA_PRECO
   {
    PRECO_ATUAL = 0,
-   PRECO_BASE = 1
+   PRECO_BASE = 1,
+   MAXIMA_VELA_ANTERIOR = 2,
+   MINIMA_VELA_ANTERIOR = 3,
+   ABERTURA_VELA_ATUAL = 4,
+   ABERTURA_VELA_ANTERIOR = 5,
+   FECHAMENTO_VELA_ANTERIOR = 6
+  };
+
+enum ENUM_QUAL_VELA
+  {
+   VELA_ULTIMA = 1,
+   VELA_PENULTIMA = 2,
+   VELA_ANTEPENULTIMA = 3
   };
 
 enum ENUM_REFERENCIA_ALVO_PERSONALIZADO
@@ -305,6 +317,64 @@ enum ENUM_CONFIGURAR_INDICADORES
    CONFIG_IND_RVI = 42                           // Relative Vigor Index (RVI)
   };
 
+enum ENUM_COMANDO_CONDICAO
+  {
+   COMANDO_SE = 0,                               // SE
+   COMANDO_E = 1,                                // E
+   COMANDO_OU = 2,                               // OU
+   COMANDO_E_SE = 3,                             // E SE
+   COMANDO_OU_SE = 4,                            // OU SE
+   COMANDO_E_TAMBEM = 5,                         // E Tambem
+   COMANDO_OU_TAMBEM = 6                         // OU Tambem
+  };
+
+enum ENUM_MENU_CONDICAO
+  {
+   MENU_NAO_USAR = 0,                            // Nao usar
+   MENU_VALOR_ABSOLUTO = 1,                      // Valor absoluto
+   MENU_VALOR_EM_PONTOS = -5,                    // Valor em pontos
+   MENU_PRECO_ENTRADA = -6,                      // Preco de entrada
+   MENU_PRECO_MEDIO = -7,                        // Preco medio
+   MENU_PRECO_ATUAL = -4,                        // Preco atual
+   MENU_FECHAMENTO_VELA = 2,                     // Fechamento da vela
+   MENU_ABERTURA_VELA = 3,                       // Abertura da vela
+   MENU_MAXIMA_VELA = 4,                         // Maxima da vela
+   MENU_MINIMA_VELA = 5,                         // Minima da vela
+   MENU_FECHAMENTO_DIA = 6,                      // Fechamento do dia
+   MENU_ABERTURA_DIA = 7,                        // Abertura do dia
+   MENU_MAXIMA_DIA = 8,                          // Maxima do dia
+   MENU_MINIMA_DIA = 9,                          // Minima do dia
+   MENU_TAMANHO_VELA = -1,                       // Tamanho da vela
+   MENU_CORPO_VELA = -2,                         // Corpo da vela
+   MENU_EMPTY_VALUE = -3,                        // Empty Value
+   MENU_INDICADOR_1 = 10,                        // Indicador 1
+   MENU_INDICADOR_2 = 20,                        // Indicador 2
+   MENU_INDICADOR_3 = 30,                        // Indicador 3
+   MENU_INDICADOR_4 = 40                         // Indicador 4
+  };
+
+enum ENUM_SIMPLES_VELA
+  {
+   SIMPLES_VELA_ATUAL = 0,                       // Vela atual
+   SIMPLES_VELA_ANTERIOR = 1,                    // Vela anterior
+   SIMPLES_VELA_PENULTIMA = 2,                   // Penultima vela
+   SIMPLES_VELA_ANTI_PENULTIMA = 3               // Anti penultima
+  };
+
+enum ENUM_OPCAO_COMPARACAO
+  {
+   COMPARAR_MAIOR_QUE = 0,                       // Maior que
+   COMPARAR_MENOR_QUE = 1,                       // Menor que
+   COMPARAR_MAIOR_IGUAL_QUE = 2,                 // Maior ou igual que
+   COMPARAR_MENOR_IGUAL_QUE = 3,                 // Menor ou igual que
+   COMPARAR_IGUAL_QUE = 4,                       // Igual que
+   COMPARAR_DIFERENTE_DE = 5,                    // Diferente de
+   COMPARAR_CRUZAR_CIMA_DE = 6,                  // Cruzar p/ cima de
+   COMPARAR_CRUZAR_BAIXO_DE = 7,                 // Cruzar p/ baixo de
+   COMPARAR_CRUZAR_FECHAR_ACIMA_DE = 8,          // Cruzar&fechar acima de
+   COMPARAR_CRUZAR_FECHAR_ABAIXO_DE = 9          // Cruzar&fechar abaixo de
+  };
+
 input group "1.Nome";
 input string Nome = "EaMin";
 
@@ -330,13 +400,15 @@ input group "5.1.Pendente entrada";
 input ENUM_TIPO_CALCULO_DISTANCIAS TipoCalculoDistanciaEntrada = PERCENTUAL; // Usar somente se TipoOrdemEntrada = PENDENTE
 input double DistanciaEntrada = 0.0;                                        // Distancia da entrada pendente (percentual ou pontos)
 input int ExpiracaoEntradaMinutos = 0;                                      // Expiracao da entrada pendente em minutos (0 = sem expiracao)
-input ENUM_REFERENCIA_PRECO ReferenciaPrecoEntrada = PRECO_ATUAL;           // Referencia de preco da entrada pendente (preco atual/base)
+input ENUM_REFERENCIA_PRECO ReferenciaPrecoEntrada = PRECO_ATUAL;           // Referencia de preco da entrada pendente
+input ENUM_QUAL_VELA QualVelaEntrada = VELA_ULTIMA;                         // Qual vela (exceto ref atual/base/abertura atual)
 
 input group "5.2.Pendente saida";
 input ENUM_TIPO_CALCULO_DISTANCIAS TipoCalculoDistanciaSaida = PERCENTUAL; // Usar somente se TipoOrdemSaida = PENDENTE
 input double DistanciaSaida = 0.0;                                          // Distancia da saida pendente (percentual ou pontos)
 input int ExpiracaoSaidaMinutos = 0;                                        // Expiracao da saida pendente em minutos (0 = sem expiracao)
-input ENUM_REFERENCIA_PRECO ReferenciaPrecoSaida = PRECO_ATUAL;             // Referencia de preco da saida pendente (preco atual/base)
+input ENUM_REFERENCIA_PRECO ReferenciaPrecoSaida = PRECO_ATUAL;             // Referencia de preco da saida pendente
+input ENUM_QUAL_VELA QualVelaSaida = VELA_ULTIMA;                           // Qual vela (exceto ref atual/base/abertura atual)
 
 input group "6.Alvos personalizados";
 input ENUM_TIPO_CALCULO_DISTANCIAS TipoCalculoDistanciaAlvos = PERCENTUAL; // Tipo de calculo das distancias dos alvos
@@ -560,11 +632,43 @@ input ENUM_APPLIED_PRICE ModoPrecoDesvioMedio = PRICE_CLOSE; // Modo de preco
 input group "19.13.Market Facilitation Index";
 input ENUM_APPLIED_VOLUME VolumeMarketFacilitationIndex = VOLUME_TICK; // Volume
 
-input group "20.Configurar indicadores";
+input group "20.Selecionar indicadores";
+
+input group "20.a.Indicador 1";
 input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador1 = CONFIG_IND_BANDAS_BOLINGER; // Indicador 1
+input ENUM_COMANDO_CONDICAO ComandoIndicador1 = COMANDO_SE;                           // Conector logico
+input ENUM_MENU_CONDICAO Menu1Indicador1 = MENU_NAO_USAR;                             // Fonte A
+input ENUM_SIMPLES_VELA Simples1Indicador1 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
+input ENUM_OPCAO_COMPARACAO OpcaoIndicador1 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
+input ENUM_MENU_CONDICAO Menu2Indicador1 = MENU_NAO_USAR;                             // Fonte B / Indicador
+input ENUM_SIMPLES_VELA Simples2Indicador1 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
+
+input group "20.b.Indicador 2";
 input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador2 = CONFIG_IND_MACD;             // Indicador 2
+input ENUM_COMANDO_CONDICAO ComandoIndicador2 = COMANDO_SE;                           // Conector logico
+input ENUM_MENU_CONDICAO Menu1Indicador2 = MENU_NAO_USAR;                             // Fonte A
+input ENUM_SIMPLES_VELA Simples1Indicador2 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
+input ENUM_OPCAO_COMPARACAO OpcaoIndicador2 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
+input ENUM_MENU_CONDICAO Menu2Indicador2 = MENU_NAO_USAR;                             // Fonte B / Indicador
+input ENUM_SIMPLES_VELA Simples2Indicador2 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
+
+input group "20.c.Indicador 3";
 input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador3 = CONFIG_IND_ENVELOPES;        // Indicador 3
+input ENUM_COMANDO_CONDICAO ComandoIndicador3 = COMANDO_SE;                           // Conector logico
+input ENUM_MENU_CONDICAO Menu1Indicador3 = MENU_NAO_USAR;                             // Fonte A
+input ENUM_SIMPLES_VELA Simples1Indicador3 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
+input ENUM_OPCAO_COMPARACAO OpcaoIndicador3 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
+input ENUM_MENU_CONDICAO Menu2Indicador3 = MENU_NAO_USAR;                             // Fonte B / Indicador
+input ENUM_SIMPLES_VELA Simples2Indicador3 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
+
+input group "20.d.Indicador 4";
 input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador4 = CONFIG_IND_ESTOCASTICO;      // Indicador 4
+input ENUM_COMANDO_CONDICAO ComandoIndicador4 = COMANDO_SE;                           // Conector logico
+input ENUM_MENU_CONDICAO Menu1Indicador4 = MENU_NAO_USAR;                             // Fonte A
+input ENUM_SIMPLES_VELA Simples1Indicador4 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
+input ENUM_OPCAO_COMPARACAO OpcaoIndicador4 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
+input ENUM_MENU_CONDICAO Menu2Indicador4 = MENU_NAO_USAR;                             // Fonte B / Indicador
+input ENUM_SIMPLES_VELA Simples2Indicador4 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 
 input group "20.1.Bandas de Bolinger";
 input int PeriodoIndicador1 = 20;                                 // Periodo
@@ -617,6 +721,136 @@ input group "20.10.Fractal";
 
 input group "20.11.OBV";
 input ENUM_APPLIED_VOLUME VolumeIndicador3OBV = VOLUME_TICK;      // Volume
+
+ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
+  {
+   switch(tempoGrafico)
+     {
+      case CORRENTE:
+         return PERIOD_CURRENT;
+      case M1:
+         return PERIOD_M1;
+      case M2:
+         return PERIOD_M2;
+      case M3:
+         return PERIOD_M3;
+      case M4:
+         return PERIOD_M4;
+      case M5:
+         return PERIOD_M5;
+      case M6:
+         return PERIOD_M6;
+      case M10:
+         return PERIOD_M10;
+      case M12:
+         return PERIOD_M12;
+      case M15:
+         return PERIOD_M15;
+      case M30:
+         return PERIOD_M30;
+      case H1:
+         return PERIOD_H1;
+      case H2:
+         return PERIOD_H2;
+      case H3:
+         return PERIOD_H3;
+      case H4:
+         return PERIOD_H4;
+      case H6:
+         return PERIOD_H6;
+      case H8:
+         return PERIOD_H8;
+      case H12:
+         return PERIOD_H12;
+      case D1:
+         return PERIOD_D1;
+      case W1:
+         return PERIOD_W1;
+      case MN1:
+         return PERIOD_MN1;
+      default:
+         return PERIOD_CURRENT;
+     }
+  }
+
+int ObterDeslocamentoVela(const ENUM_QUAL_VELA qualVela)
+  {
+   switch(qualVela)
+     {
+      case VELA_ULTIMA:
+         return 1;
+      case VELA_PENULTIMA:
+         return 2;
+      case VELA_ANTEPENULTIMA:
+         return 3;
+      default:
+         return 1;
+     }
+  }
+
+bool ObterVelaPorDeslocamento(const int deslocamento, MqlRates &vela)
+  {
+   MqlRates rates[];
+   ArrayResize(rates, 1);
+   ArraySetAsSeries(rates, true);
+
+   const int copied = CopyRates(_Symbol, ObterTimeframe(TempoGrafico), deslocamento, 1, rates);
+   if(copied < 1)
+      return false;
+
+   vela = rates[0];
+   return true;
+  }
+
+double CalcularPrecoReferenciaPendente(const ENUM_REFERENCIA_PRECO referencia, const ENUM_QUAL_VELA qualVela, const double precoAtual, const double precoBase)
+  {
+   switch(referencia)
+     {
+      case PRECO_ATUAL:
+         return precoAtual;
+      case PRECO_BASE:
+         return precoBase;
+      default:
+         break;
+     }
+
+   if(referencia == ABERTURA_VELA_ATUAL)
+     {
+      MqlRates velaAtual;
+      if(!ObterVelaPorDeslocamento(0, velaAtual))
+         return precoAtual;
+
+      return velaAtual.open;
+     }
+
+   MqlRates velaSelecionada;
+   if(!ObterVelaPorDeslocamento(ObterDeslocamentoVela(qualVela), velaSelecionada))
+      return precoAtual;
+
+   switch(referencia)
+     {
+      case MAXIMA_VELA_ANTERIOR:
+         return velaSelecionada.high;
+      case MINIMA_VELA_ANTERIOR:
+         return velaSelecionada.low;
+      case ABERTURA_VELA_ANTERIOR:
+         return velaSelecionada.open;
+      case FECHAMENTO_VELA_ANTERIOR:
+         return velaSelecionada.close;
+      default:
+         return precoAtual;
+     }
+  }
+
+double ObterPrecoReferenciaEntradaPendente(const double precoAtual, const double precoBase)
+  {
+   return CalcularPrecoReferenciaPendente(ReferenciaPrecoEntrada, QualVelaEntrada, precoAtual, precoBase);
+  }
+
+double ObterPrecoReferenciaSaidaPendente(const double precoAtual, const double precoBase)
+  {
+   return CalcularPrecoReferenciaPendente(ReferenciaPrecoSaida, QualVelaSaida, precoAtual, precoBase);
+  }
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
