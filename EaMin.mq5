@@ -634,7 +634,7 @@ input ENUM_APPLIED_VOLUME VolumeMarketFacilitationIndex = VOLUME_TICK; // Volume
 
 input group "20.Selecionar indicadores";
 
-input group "20.a.Indicador 1";
+input group "20.a.Indicador 1 - Compra";
 input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador1 = CONFIG_IND_BANDAS_BOLINGER; // Indicador 1
 input ENUM_COMANDO_CONDICAO ComandoIndicador1 = COMANDO_SE;                           // Conector logico
 input ENUM_MENU_CONDICAO Menu1Indicador1 = MENU_NAO_USAR;                             // Fonte A
@@ -643,7 +643,7 @@ input ENUM_OPCAO_COMPARACAO OpcaoIndicador1 = COMPARAR_MAIOR_QUE;               
 input ENUM_MENU_CONDICAO Menu2Indicador1 = MENU_NAO_USAR;                             // Fonte B / Indicador
 input ENUM_SIMPLES_VELA Simples2Indicador1 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 
-input group "20.b.Indicador 2";
+input group "20.b.Indicador 2 - Compra";
 input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador2 = CONFIG_IND_MACD;             // Indicador 2
 input ENUM_COMANDO_CONDICAO ComandoIndicador2 = COMANDO_SE;                           // Conector logico
 input ENUM_MENU_CONDICAO Menu1Indicador2 = MENU_NAO_USAR;                             // Fonte A
@@ -652,7 +652,7 @@ input ENUM_OPCAO_COMPARACAO OpcaoIndicador2 = COMPARAR_MAIOR_QUE;               
 input ENUM_MENU_CONDICAO Menu2Indicador2 = MENU_NAO_USAR;                             // Fonte B / Indicador
 input ENUM_SIMPLES_VELA Simples2Indicador2 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 
-input group "20.c.Indicador 3";
+input group "20.c.Indicador 3 - Compra";
 input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador3 = CONFIG_IND_ENVELOPES;        // Indicador 3
 input ENUM_COMANDO_CONDICAO ComandoIndicador3 = COMANDO_SE;                           // Conector logico
 input ENUM_MENU_CONDICAO Menu1Indicador3 = MENU_NAO_USAR;                             // Fonte A
@@ -661,7 +661,7 @@ input ENUM_OPCAO_COMPARACAO OpcaoIndicador3 = COMPARAR_MAIOR_QUE;               
 input ENUM_MENU_CONDICAO Menu2Indicador3 = MENU_NAO_USAR;                             // Fonte B / Indicador
 input ENUM_SIMPLES_VELA Simples2Indicador3 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 
-input group "20.d.Indicador 4";
+input group "20.d.Indicador 4 - Compra";
 input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicador4 = CONFIG_IND_ESTOCASTICO;      // Indicador 4
 input ENUM_COMANDO_CONDICAO ComandoIndicador4 = COMANDO_SE;                           // Conector logico
 input ENUM_MENU_CONDICAO Menu1Indicador4 = MENU_NAO_USAR;                             // Fonte A
@@ -669,6 +669,42 @@ input ENUM_SIMPLES_VELA Simples1Indicador4 = SIMPLES_VELA_ATUAL;                
 input ENUM_OPCAO_COMPARACAO OpcaoIndicador4 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2Indicador4 = MENU_NAO_USAR;                             // Fonte B / Indicador
 input ENUM_SIMPLES_VELA Simples2Indicador4 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
+
+input group "20.e.Indicador 1 - Venda";
+input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicadorVenda1 = CONFIG_IND_BANDAS_BOLINGER; // Indicador 1
+input ENUM_COMANDO_CONDICAO ComandoIndicadorVenda1 = COMANDO_SE;                            // Conector logico
+input ENUM_MENU_CONDICAO Menu1IndicadorVenda1 = MENU_NAO_USAR;                              // Fonte A
+input ENUM_SIMPLES_VELA Simples1IndicadorVenda1 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
+input ENUM_OPCAO_COMPARACAO OpcaoIndicadorVenda1 = COMPARAR_MENOR_QUE;                       // Operador de comparacao
+input ENUM_MENU_CONDICAO Menu2IndicadorVenda1 = MENU_NAO_USAR;                              // Fonte B / Indicador
+input ENUM_SIMPLES_VELA Simples2IndicadorVenda1 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
+
+input group "20.f.Indicador 2 - Venda";
+input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicadorVenda2 = CONFIG_IND_MACD;              // Indicador 2
+input ENUM_COMANDO_CONDICAO ComandoIndicadorVenda2 = COMANDO_SE;                            // Conector logico
+input ENUM_MENU_CONDICAO Menu1IndicadorVenda2 = MENU_NAO_USAR;                              // Fonte A
+input ENUM_SIMPLES_VELA Simples1IndicadorVenda2 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
+input ENUM_OPCAO_COMPARACAO OpcaoIndicadorVenda2 = COMPARAR_MENOR_QUE;                       // Operador de comparacao
+input ENUM_MENU_CONDICAO Menu2IndicadorVenda2 = MENU_NAO_USAR;                              // Fonte B / Indicador
+input ENUM_SIMPLES_VELA Simples2IndicadorVenda2 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
+
+input group "20.g.Indicador 3 - Venda";
+input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicadorVenda3 = CONFIG_IND_ENVELOPES;         // Indicador 3
+input ENUM_COMANDO_CONDICAO ComandoIndicadorVenda3 = COMANDO_SE;                            // Conector logico
+input ENUM_MENU_CONDICAO Menu1IndicadorVenda3 = MENU_NAO_USAR;                              // Fonte A
+input ENUM_SIMPLES_VELA Simples1IndicadorVenda3 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
+input ENUM_OPCAO_COMPARACAO OpcaoIndicadorVenda3 = COMPARAR_MENOR_QUE;                       // Operador de comparacao
+input ENUM_MENU_CONDICAO Menu2IndicadorVenda3 = MENU_NAO_USAR;                              // Fonte B / Indicador
+input ENUM_SIMPLES_VELA Simples2IndicadorVenda3 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
+
+input group "20.h.Indicador 4 - Venda";
+input ENUM_CONFIGURAR_INDICADORES ConfigurarIndicadorVenda4 = CONFIG_IND_ESTOCASTICO;       // Indicador 4
+input ENUM_COMANDO_CONDICAO ComandoIndicadorVenda4 = COMANDO_SE;                            // Conector logico
+input ENUM_MENU_CONDICAO Menu1IndicadorVenda4 = MENU_NAO_USAR;                              // Fonte A
+input ENUM_SIMPLES_VELA Simples1IndicadorVenda4 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
+input ENUM_OPCAO_COMPARACAO OpcaoIndicadorVenda4 = COMPARAR_MENOR_QUE;                       // Operador de comparacao
+input ENUM_MENU_CONDICAO Menu2IndicadorVenda4 = MENU_NAO_USAR;                              // Fonte B / Indicador
+input ENUM_SIMPLES_VELA Simples2IndicadorVenda4 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 
 input group "20.1.Bandas de Bolinger";
 input int PeriodoIndicador1 = 20;                                 // Periodo
