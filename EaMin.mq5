@@ -449,6 +449,13 @@ enum ENUM_DESVIO_MEDIO_ENTRADA
    DESVIO_MEDIO_ENTRADA_DESVIO_MEDIO = 1          // Desvio Medio
   };
 
+enum ENUM_CANAL_ATR_ENTRADA
+  {
+   CANAL_ATR_CENTRAL = 0,                         // ATR Central
+   CANAL_ATR_SUPERIOR = 1,                        // ATR Superior
+   CANAL_ATR_INFERIOR = 2                         // ATR Inferior
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -913,6 +920,11 @@ input int PeriodoIndicador1DesvioMedio = 1;                        // Periodo
 input ENUM_MA_METHOD TipoMediaIndicador1DesvioMedio = MODE_SMA;    // Tipo de media
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1DesvioMedio = PRICE_MEDIAN; // Modo de preco
 input ENUM_DESVIO_MEDIO_ENTRADA EntradaIndicador1DesvioMedio = DESVIO_MEDIO_ENTRADA_DESVIO_AFASTAMENTO; // Entrada
+
+input group "20.20.Canal ATR";
+input int PeriodoIndicador1CanalATR = 1;                           // Periodo
+input double DesviosIndicador1CanalATR = 1.0;                      // Desvios
+input ENUM_CANAL_ATR_ENTRADA EntradaIndicador1CanalATR = CANAL_ATR_CENTRAL; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
