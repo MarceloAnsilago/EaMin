@@ -443,6 +443,12 @@ enum ENUM_AFASTAMENTO_MEDIA_ENTRADA
    AFASTAMENTO_MEDIA_ENTRADA_AFASTAMENTO_MEDIO = 0 // Afastamento medio
   };
 
+enum ENUM_DESVIO_MEDIO_ENTRADA
+  {
+   DESVIO_MEDIO_ENTRADA_DESVIO_AFASTAMENTO = 0,   // Desvio Afastamento
+   DESVIO_MEDIO_ENTRADA_DESVIO_MEDIO = 1          // Desvio Medio
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -901,6 +907,12 @@ input int DeslocamentoIndicador1AfastamentoMedia = 1;              // Deslocamen
 input ENUM_MA_METHOD TipoMediaIndicador1AfastamentoMedia = MODE_SMA; // Tipo de media
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1AfastamentoMedia = PRICE_CLOSE; // Modo de preco
 input ENUM_AFASTAMENTO_MEDIA_ENTRADA EntradaIndicador1AfastamentoMedia = AFASTAMENTO_MEDIA_ENTRADA_AFASTAMENTO_MEDIO; // Entrada
+
+input group "20.19.Desvio Medio";
+input int PeriodoIndicador1DesvioMedio = 1;                        // Periodo
+input ENUM_MA_METHOD TipoMediaIndicador1DesvioMedio = MODE_SMA;    // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1DesvioMedio = PRICE_MEDIAN; // Modo de preco
+input ENUM_DESVIO_MEDIO_ENTRADA EntradaIndicador1DesvioMedio = DESVIO_MEDIO_ENTRADA_DESVIO_AFASTAMENTO; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
