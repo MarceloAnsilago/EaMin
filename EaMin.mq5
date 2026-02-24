@@ -438,6 +438,11 @@ enum ENUM_REGRESSAO_ENTRADA
    REGRESSAO_RATIO = 0                           // Ratio
   };
 
+enum ENUM_AFASTAMENTO_MEDIA_ENTRADA
+  {
+   AFASTAMENTO_MEDIA_ENTRADA_AFASTAMENTO_MEDIO = 0 // Afastamento medio
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -889,6 +894,13 @@ input int PeriodoIndicador1Regressao = 1;                          // Periodo
 input ENUM_MA_METHOD TipoMediaIndicador1Regressao = MODE_SMA;      // Tipo de media
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1Regressao = PRICE_CLOSE; // Modo de preco
 input ENUM_REGRESSAO_ENTRADA EntradaIndicador1Regressao = REGRESSAO_RATIO; // Entrada
+
+input group "20.18.Afastamento da media";
+input int PeriodoIndicador1AfastamentoMedia = 1;                   // Periodo
+input int DeslocamentoIndicador1AfastamentoMedia = 1;              // Deslocamento
+input ENUM_MA_METHOD TipoMediaIndicador1AfastamentoMedia = MODE_SMA; // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1AfastamentoMedia = PRICE_CLOSE; // Modo de preco
+input ENUM_AFASTAMENTO_MEDIA_ENTRADA EntradaIndicador1AfastamentoMedia = AFASTAMENTO_MEDIA_ENTRADA_AFASTAMENTO_MEDIO; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
