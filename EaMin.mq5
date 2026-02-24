@@ -419,6 +419,13 @@ enum ENUM_MEDIA_MOVEL_ENTRADA
    MEDIA_MOVEL_ENTRADA_MEDIA_MOVEL = 0           // Media movel
   };
 
+enum ENUM_KELTNER_ENTRADA
+  {
+   KELTNER_CENTRAL = 0,                          // Keltner central
+   KELTNER_SUPERIOR = 1,                         // Keltner superior
+   KELTNER_INFERIOR = 2                          // Keltner inferior
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -834,12 +841,32 @@ input group "20.11.OBV";
 input ENUM_APPLIED_VOLUME VolumeIndicador3OBV = VOLUME_TICK;      // Volume
 input ENUM_OBV_ENTRADA EntradaIndicador3OBV = OBV_ENTRADA_OBV;     // Entrada
 
-input group "20.12.Media Movel";
+input group "20.12.Media Movel 1";
 input int PeriodoIndicador1MediaMovel = 14;                        // Periodo
 input int DeslocamentoIndicador1MediaMovel = 0;                    // Deslocamento
 input ENUM_MA_METHOD TipoMediaIndicador1MediaMovel = MODE_SMA;     // Tipo de media
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1MediaMovel = PRICE_CLOSE; // Modo de preco
 input ENUM_MEDIA_MOVEL_ENTRADA EntradaIndicador1MediaMovel = MEDIA_MOVEL_ENTRADA_MEDIA_MOVEL; // Entrada
+
+input group "20.13.Media Movel 2";
+input int PeriodoIndicador2MediaMovel = 14;                        // Periodo
+input int DeslocamentoIndicador2MediaMovel = 0;                    // Deslocamento
+input ENUM_MA_METHOD TipoMediaIndicador2MediaMovel = MODE_SMA;     // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador2MediaMovel = PRICE_CLOSE; // Modo de preco
+input ENUM_MEDIA_MOVEL_ENTRADA EntradaIndicador2MediaMovel = MEDIA_MOVEL_ENTRADA_MEDIA_MOVEL; // Entrada
+
+input group "20.14.Media Movel 3";
+input int PeriodoIndicador3MediaMovel = 14;                        // Periodo
+input int DeslocamentoIndicador3MediaMovel = 0;                    // Deslocamento
+input ENUM_MA_METHOD TipoMediaIndicador3MediaMovel = MODE_SMA;     // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador3MediaMovel = PRICE_CLOSE; // Modo de preco
+input ENUM_MEDIA_MOVEL_ENTRADA EntradaIndicador3MediaMovel = MEDIA_MOVEL_ENTRADA_MEDIA_MOVEL; // Entrada
+
+input group "20.15.Keltner";
+input int PeriodoIndicador1Keltner = 1;                            // Periodo
+input double DesviosIndicador1Keltner = 0.01;                      // Desvios
+input ENUM_MA_METHOD TipoMediaIndicador1Keltner = MODE_SMA;        // Tipo de media
+input ENUM_KELTNER_ENTRADA EntradaIndicador1Keltner = KELTNER_CENTRAL; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
