@@ -353,6 +353,31 @@ enum ENUM_MENU_CONDICAO
    MENU_INDICADOR_4 = 40                         // Indicador 4
   };
 
+enum ENUM_BANDAS_BOLINGER_SINAL
+  {
+   BOLINGER_CENTRAL = 0,                         // Bolinger central
+   BOLINGER_SUPERIOR = 1,                        // Bolinger superior
+   BOLINGER_INFERIOR = 2                         // Bolinger inferior
+  };
+
+enum ENUM_MACD_ENTRADA
+  {
+   MACD_HISTOGRAMA = 0,                          // MACD histograma
+   MACD_SINAL = 1                                // MACD sinal
+  };
+
+enum ENUM_ENVELOPE_ENTRADA
+  {
+   ENVELOPE_SUPERIOR = 0,                        // Envelope superior
+   ENVELOPE_INFERIOR = 1                         // Envelope inferior
+  };
+
+enum ENUM_ESTOCASTICO_ENTRADA
+  {
+   ESTOCASTICO_PRINCIPAL = 0,                    // Estocastico principal
+   ESTOCASTICO_SINAL = 1                         // Estocastico sinal
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -711,12 +736,14 @@ input int PeriodoIndicador1 = 20;                                 // Periodo
 input double DesviosIndicador1 = 2.0;                             // Desvios
 input int DeslocamentoIndicador1 = 0;                             // Deslocamento
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1 = PRICE_CLOSE;       // Modo de preco
+input ENUM_BANDAS_BOLINGER_SINAL SinalIndicador1 = BOLINGER_CENTRAL; // Entrada
 
 input group "20.2.MACD";
 input int EMARapidaIndicador2 = 12;                               // EMA rapida
 input int EMALentaIndicador2 = 26;                                // EMA lenta
 input int SinalIndicador2 = 9;                                    // Sinal
 input ENUM_APPLIED_PRICE ModoPrecoIndicador2 = PRICE_CLOSE;       // Modo de preco
+input ENUM_MACD_ENTRADA EntradaIndicador2 = MACD_HISTOGRAMA;      // Entrada
 
 input group "20.3.Envelopes";
 input int PeriodoIndicador3 = 14;                                 // Periodo
@@ -724,6 +751,7 @@ input int DeslocamentoIndicador3 = 0;                             // Deslocament
 input ENUM_MA_METHOD TipoMediaIndicador3 = MODE_SMA;              // Tipo de media
 input ENUM_APPLIED_PRICE ModoPrecoIndicador3 = PRICE_CLOSE;       // Modo de preco
 input double DesviosIndicador3 = 1.0;                             // Desvios
+input ENUM_ENVELOPE_ENTRADA EntradaIndicador3 = ENVELOPE_SUPERIOR; // Entrada
 
 input group "20.4.Estocastico";
 input int KPeriodoIndicador4 = 5;                                 // K Periodo
@@ -731,6 +759,7 @@ input int DPeriodoIndicador4 = 3;                                 // D Periodo
 input int LentidaoIndicador4 = 3;                                 // Lentidao
 input ENUM_MA_METHOD TipoMediaIndicador4 = MODE_SMA;              // Tipo de media
 input ENUM_STO_PRICE TipoEstocasticoIndicador4 = STO_LOWHIGH;     // Tipo estocastico
+input ENUM_ESTOCASTICO_ENTRADA EntradaIndicador4 = ESTOCASTICO_PRINCIPAL; // Entrada
 
 input group "20.5.RSI";
 input int PeriodoIndicador1RSI = 14;                              // Periodo
