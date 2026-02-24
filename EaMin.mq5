@@ -414,6 +414,11 @@ enum ENUM_OBV_ENTRADA
    OBV_ENTRADA_OBV = 0                           // OBV
   };
 
+enum ENUM_MEDIA_MOVEL_ENTRADA
+  {
+   MEDIA_MOVEL_ENTRADA_MEDIA_MOVEL = 0           // Media movel
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -828,6 +833,13 @@ input ENUM_FRACTAL_ENTRADA EntradaIndicador1Fractal = FRACTAL_SUPERIOR; // Entra
 input group "20.11.OBV";
 input ENUM_APPLIED_VOLUME VolumeIndicador3OBV = VOLUME_TICK;      // Volume
 input ENUM_OBV_ENTRADA EntradaIndicador3OBV = OBV_ENTRADA_OBV;     // Entrada
+
+input group "20.12.Media Movel";
+input int PeriodoIndicador1MediaMovel = 14;                        // Periodo
+input int DeslocamentoIndicador1MediaMovel = 0;                    // Deslocamento
+input ENUM_MA_METHOD TipoMediaIndicador1MediaMovel = MODE_SMA;     // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1MediaMovel = PRICE_CLOSE; // Modo de preco
+input ENUM_MEDIA_MOVEL_ENTRADA EntradaIndicador1MediaMovel = MEDIA_MOVEL_ENTRADA_MEDIA_MOVEL; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
