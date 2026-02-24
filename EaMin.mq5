@@ -426,6 +426,13 @@ enum ENUM_KELTNER_ENTRADA
    KELTNER_INFERIOR = 2                          // Keltner inferior
   };
 
+enum ENUM_DOCHIAN_ENTRADA
+  {
+   DOCHIAN_CENTRAL = 0,                          // Donchian central
+   DOCHIAN_SUPERIOR = 1,                         // Donchian superior
+   DOCHIAN_INFERIOR = 2                          // Donchian inferior
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -867,6 +874,10 @@ input int PeriodoIndicador1Keltner = 1;                            // Periodo
 input double DesviosIndicador1Keltner = 0.01;                      // Desvios
 input ENUM_MA_METHOD TipoMediaIndicador1Keltner = MODE_SMA;        // Tipo de media
 input ENUM_KELTNER_ENTRADA EntradaIndicador1Keltner = KELTNER_CENTRAL; // Entrada
+
+input group "20.16.Dochian";
+input int PeriodoIndicador1Dochian = 1;                            // Periodo
+input ENUM_DOCHIAN_ENTRADA EntradaIndicador1Dochian = DOCHIAN_CENTRAL; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
