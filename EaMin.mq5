@@ -378,6 +378,42 @@ enum ENUM_ESTOCASTICO_ENTRADA
    ESTOCASTICO_SINAL = 1                         // Estocastico sinal
   };
 
+enum ENUM_RSI_ENTRADA
+  {
+   RSI_ENTRADA_RSI = 0                           // RSI
+  };
+
+enum ENUM_DESVIO_PADRAO_ENTRADA
+  {
+   DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
+  };
+
+enum ENUM_VOLUME_ENTRADA
+  {
+   VOLUME_ENTRADA_VOLUME = 0                     // Volume
+  };
+
+enum ENUM_ATR_ENTRADA
+  {
+   ATR_ENTRADA_ATR = 0                           // ATR
+  };
+
+enum ENUM_PARABOLIC_SAR_ENTRADA
+  {
+   PARABOLIC_SAR_ENTRADA_PARABOLIC_SAR = 0       // Parabolic SAR
+  };
+
+enum ENUM_FRACTAL_ENTRADA
+  {
+   FRACTAL_SUPERIOR = 0,                         // Fractal superior
+   FRACTAL_INFERIOR = 1                          // Fractal inferior
+  };
+
+enum ENUM_OBV_ENTRADA
+  {
+   OBV_ENTRADA_OBV = 0                           // OBV
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -764,28 +800,34 @@ input ENUM_ESTOCASTICO_ENTRADA EntradaIndicador4 = ESTOCASTICO_PRINCIPAL; // Ent
 input group "20.5.RSI";
 input int PeriodoIndicador1RSI = 14;                              // Periodo
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1RSI = PRICE_CLOSE;    // Modo de preco
+input ENUM_RSI_ENTRADA EntradaIndicador1RSI = RSI_ENTRADA_RSI;    // Entrada
 
 input group "20.6.Desvio Padrao";
 input int PeriodoIndicador2DesvioPadrao = 20;                     // Periodo
 input int DeslocamentoIndicador2DesvioPadrao = 0;                 // Deslocamento
 input ENUM_MA_METHOD TipoMediaIndicador2DesvioPadrao = MODE_SMA;  // Tipo de media
 input ENUM_APPLIED_PRICE ModoPrecoIndicador2DesvioPadrao = PRICE_CLOSE; // Modo de preco
+input ENUM_DESVIO_PADRAO_ENTRADA EntradaIndicador2DesvioPadrao = DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO; // Entrada
 
 input group "20.7.Volume";
 input ENUM_APPLIED_VOLUME VolumeIndicador3 = VOLUME_TICK;         // Volume
+input ENUM_VOLUME_ENTRADA EntradaIndicador3Volume = VOLUME_ENTRADA_VOLUME; // Entrada
 
 input group "20.8.ATR";
 input int PeriodoIndicador4ATR = 14;                              // Periodo
+input ENUM_ATR_ENTRADA EntradaIndicador4ATR = ATR_ENTRADA_ATR;    // Entrada
 
 input group "20.9.Parabolic SAR";
 input double PassoIndicador1ParabolicSAR = 0.02;                  // Passo
 input double MaximoIndicador1ParabolicSAR = 0.2;                  // Maximo
+input ENUM_PARABOLIC_SAR_ENTRADA EntradaIndicador1ParabolicSAR = PARABOLIC_SAR_ENTRADA_PARABOLIC_SAR; // Entrada
 
 input group "20.10.Fractal";
-// Fractal nao requer parametros
+input ENUM_FRACTAL_ENTRADA EntradaIndicador1Fractal = FRACTAL_SUPERIOR; // Entrada
 
 input group "20.11.OBV";
 input ENUM_APPLIED_VOLUME VolumeIndicador3OBV = VOLUME_TICK;      // Volume
+input ENUM_OBV_ENTRADA EntradaIndicador3OBV = OBV_ENTRADA_OBV;     // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
