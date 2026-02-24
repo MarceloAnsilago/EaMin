@@ -433,6 +433,11 @@ enum ENUM_DOCHIAN_ENTRADA
    DOCHIAN_INFERIOR = 2                          // Donchian inferior
   };
 
+enum ENUM_REGRESSAO_ENTRADA
+  {
+   REGRESSAO_RATIO = 0                           // Ratio
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -878,6 +883,12 @@ input ENUM_KELTNER_ENTRADA EntradaIndicador1Keltner = KELTNER_CENTRAL; // Entrad
 input group "20.16.Dochian";
 input int PeriodoIndicador1Dochian = 1;                            // Periodo
 input ENUM_DOCHIAN_ENTRADA EntradaIndicador1Dochian = DOCHIAN_CENTRAL; // Entrada
+
+input group "20.17.Regressao";
+input int PeriodoIndicador1Regressao = 1;                          // Periodo
+input ENUM_MA_METHOD TipoMediaIndicador1Regressao = MODE_SMA;      // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Regressao = PRICE_CLOSE; // Modo de preco
+input ENUM_REGRESSAO_ENTRADA EntradaIndicador1Regressao = REGRESSAO_RATIO; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
