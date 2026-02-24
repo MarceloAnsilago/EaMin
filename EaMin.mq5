@@ -456,6 +456,11 @@ enum ENUM_CANAL_ATR_ENTRADA
    CANAL_ATR_INFERIOR = 2                         // ATR Inferior
   };
 
+enum ENUM_AD_ENTRADA
+  {
+   AD_ENTRADA_AD = 0                              // A/D
+  };
+
 enum ENUM_SIMPLES_VELA
   {
    SIMPLES_VELA_ATUAL = 0,                       // Vela atual
@@ -925,6 +930,10 @@ input group "20.20.Canal ATR";
 input int PeriodoIndicador1CanalATR = 1;                           // Periodo
 input double DesviosIndicador1CanalATR = 1.0;                      // Desvios
 input ENUM_CANAL_ATR_ENTRADA EntradaIndicador1CanalATR = CANAL_ATR_CENTRAL; // Entrada
+
+input group "20.21.A/D";
+input ENUM_APPLIED_VOLUME VolumeIndicador1AD = VOLUME_TICK;        // Volume
+input ENUM_AD_ENTRADA EntradaIndicador1AD = AD_ENTRADA_AD;         // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
