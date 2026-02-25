@@ -428,6 +428,11 @@ enum ENUM_CHAIKIN_OSCILADOR_ENTRADA
    CHAIKIN_OSCILADOR_ENTRADA_CHAIKIN_OSCILADOR = 0 // Chaikin Oscilador
   };
 
+enum ENUM_ACCELERATOR_OSCILADOR_ENTRADA
+  {
+   ACCELERATOR_OSCILADOR_ENTRADA_ACCELERATOR_OSCILADOR = 0 // Accelerator Oscilador
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1029,6 +1034,9 @@ input int MediaLentaIndicador1ChaikinOscilador = 10;               // Media lent
 input ENUM_MA_METHOD TipoMediaIndicador1ChaikinOscilador = MODE_SMA; // Tipo de media
 input ENUM_APPLIED_VOLUME VolumeIndicador1ChaikinOscilador = VOLUME_TICK; // Volume
 input ENUM_CHAIKIN_OSCILADOR_ENTRADA EntradaIndicador1ChaikinOscilador = CHAIKIN_OSCILADOR_ENTRADA_CHAIKIN_OSCILADOR; // Entrada
+
+input group "20.31.Accelerator Oscilador";
+input ENUM_ACCELERATOR_OSCILADOR_ENTRADA EntradaIndicador1AcceleratorOscilador = ACCELERATOR_OSCILADOR_ENTRADA_ACCELERATOR_OSCILADOR; // Accelerator nao requer parametros
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
