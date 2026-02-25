@@ -383,6 +383,31 @@ enum ENUM_RSI_ENTRADA
    RSI_ENTRADA_RSI = 0                           // RSI
   };
 
+enum ENUM_MFI_ENTRADA
+  {
+   MFI_ENTRADA_MFI = 0                           // MFI
+  };
+
+enum ENUM_VIDYA_ENTRADA
+  {
+   VIDYA_ENTRADA_VIDYA = 0                       // Vidya
+  };
+
+enum ENUM_DEMA_ENTRADA
+  {
+   DEMA_ENTRADA_DEMA = 0                         // Dema
+  };
+
+enum ENUM_TEMA_ENTRADA
+  {
+   TEMA_ENTRADA_TEMA = 0                         // Tema
+  };
+
+enum ENUM_FRAMA_ENTRADA
+  {
+   FRAMA_ENTRADA_FRAMA = 0                       // Frama
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -934,6 +959,36 @@ input ENUM_CANAL_ATR_ENTRADA EntradaIndicador1CanalATR = CANAL_ATR_CENTRAL; // E
 input group "20.21.A/D";
 input ENUM_APPLIED_VOLUME VolumeIndicador1AD = VOLUME_TICK;        // Volume
 input ENUM_AD_ENTRADA EntradaIndicador1AD = AD_ENTRADA_AD;         // Entrada
+
+input group "20.22.MFI";
+input int PeriodoIndicador1MFI = 14;                               // Periodo
+input ENUM_APPLIED_VOLUME VolumeIndicador1MFI = VOLUME_REAL;       // Volume
+input ENUM_MFI_ENTRADA EntradaIndicador1MFI = MFI_ENTRADA_MFI;     // Entrada
+
+input group "20.23.Vidya";
+input int PeriodoCMOIndicador1Vidya = 14;                          // Periodo CMO
+input int PeriodoEMAIndicador1Vidya = 20;                          // Periodo EMA
+input int DeslocamentoIndicador1Vidya = 0;                         // Deslocamento
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Vidya = PRICE_CLOSE;   // Modo de preco
+input ENUM_VIDYA_ENTRADA EntradaIndicador1Vidya = VIDYA_ENTRADA_VIDYA; // Entrada
+
+input group "20.24.Dema";
+input int PeriodoIndicador1Dema = 14;                              // Periodo
+input int DeslocamentoIndicador1Dema = 20;                         // Deslocamento
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Dema = PRICE_CLOSE;    // Modo de preco
+input ENUM_DEMA_ENTRADA EntradaIndicador1Dema = DEMA_ENTRADA_DEMA; // Entrada
+
+input group "20.25.Tema";
+input int PeriodoIndicador1Tema = 14;                              // Periodo
+input int DeslocamentoIndicador1Tema = 20;                         // Deslocamento
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Tema = PRICE_OPEN;     // Modo de preco
+input ENUM_TEMA_ENTRADA EntradaIndicador1Tema = TEMA_ENTRADA_TEMA; // Entrada
+
+input group "20.26.Frama";
+input int PeriodoIndicador1Frama = 14;                             // Periodo
+input int DeslocamentoIndicador1Frama = 20;                        // Deslocamento
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Frama = PRICE_OPEN;    // Modo de preco
+input ENUM_FRAMA_ENTRADA EntradaIndicador1Frama = FRAMA_ENTRADA_FRAMA; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
