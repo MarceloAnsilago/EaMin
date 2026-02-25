@@ -418,6 +418,11 @@ enum ENUM_BEARS_POWER_ENTRADA
    BEARS_POWER_ENTRADA_BEARS_POWER = 0           // Bears Power
   };
 
+enum ENUM_BULLS_POWER_ENTRADA
+  {
+   BULLS_POWER_ENTRADA_BULLS_POWER = 0           // Bulls Power
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1008,6 +1013,10 @@ input ENUM_TRIX_ENTRADA EntradaIndicador1Trix = TRIX_ENTRADA_TRIX; // Entrada
 input group "20.28.Bears Power";
 input int PeriodoIndicador1BearsPower = 14;                        // Periodo
 input ENUM_BEARS_POWER_ENTRADA EntradaIndicador1BearsPower = BEARS_POWER_ENTRADA_BEARS_POWER; // Entrada
+
+input group "20.29.Bulls Power";
+input int PeriodoIndicador1BullsPower = 14;                        // Periodo
+input ENUM_BULLS_POWER_ENTRADA EntradaIndicador1BullsPower = BULLS_POWER_ENTRADA_BULLS_POWER; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
