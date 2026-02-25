@@ -408,6 +408,11 @@ enum ENUM_FRAMA_ENTRADA
    FRAMA_ENTRADA_FRAMA = 0                       // Frama
   };
 
+enum ENUM_TRIX_ENTRADA
+  {
+   TRIX_ENTRADA_TRIX = 0                         // Trix
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -989,6 +994,11 @@ input int PeriodoIndicador1Frama = 14;                             // Periodo
 input int DeslocamentoIndicador1Frama = 20;                        // Deslocamento
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1Frama = PRICE_OPEN;    // Modo de preco
 input ENUM_FRAMA_ENTRADA EntradaIndicador1Frama = FRAMA_ENTRADA_FRAMA; // Entrada
+
+input group "20.27.Trix";
+input int PeriodoIndicador1Trix = 14;                              // Periodo
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Trix = PRICE_CLOSE;    // Modo de preco
+input ENUM_TRIX_ENTRADA EntradaIndicador1Trix = TRIX_ENTRADA_TRIX; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
