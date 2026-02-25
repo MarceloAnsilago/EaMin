@@ -413,6 +413,11 @@ enum ENUM_TRIX_ENTRADA
    TRIX_ENTRADA_TRIX = 0                         // Trix
   };
 
+enum ENUM_BEARS_POWER_ENTRADA
+  {
+   BEARS_POWER_ENTRADA_BEARS_POWER = 0           // Bears Power
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -999,6 +1004,10 @@ input group "20.27.Trix";
 input int PeriodoIndicador1Trix = 14;                              // Periodo
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1Trix = PRICE_CLOSE;    // Modo de preco
 input ENUM_TRIX_ENTRADA EntradaIndicador1Trix = TRIX_ENTRADA_TRIX; // Entrada
+
+input group "20.28.Bears Power";
+input int PeriodoIndicador1BearsPower = 14;                        // Periodo
+input ENUM_BEARS_POWER_ENTRADA EntradaIndicador1BearsPower = BEARS_POWER_ENTRADA_BEARS_POWER; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
