@@ -433,6 +433,11 @@ enum ENUM_ACCELERATOR_OSCILADOR_ENTRADA
    ACCELERATOR_OSCILADOR_ENTRADA_ACCELERATOR_OSCILADOR = 0 // Accelerator Oscilador
   };
 
+enum ENUM_AWESOME_OSCILADOR_ENTRADA
+  {
+   AWESOME_OSCILADOR_ENTRADA_AWESOME_OSCILADOR = 0 // Awesome Oscilador
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1037,6 +1042,9 @@ input ENUM_CHAIKIN_OSCILADOR_ENTRADA EntradaIndicador1ChaikinOscilador = CHAIKIN
 
 input group "20.31.Accelerator Oscilador";
 input ENUM_ACCELERATOR_OSCILADOR_ENTRADA EntradaIndicador1AcceleratorOscilador = ACCELERATOR_OSCILADOR_ENTRADA_ACCELERATOR_OSCILADOR; // Accelerator nao requer parametros
+
+input group "20.32.Awesome Oscilador";
+input ENUM_AWESOME_OSCILADOR_ENTRADA EntradaIndicador1AwesomeOscilador = AWESOME_OSCILADOR_ENTRADA_AWESOME_OSCILADOR; // Awesome nao requer parametros
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
