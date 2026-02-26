@@ -1192,6 +1192,13 @@ input ENUM_SIM_NAO ProcurarEntradaVelaSeguinteSaida = NAO;         // Procurar e
 input ENUM_SIM_NAO ProcurarSaidaVelaSeguinteEntrada = NAO;         // Procurar saida na vela seguinte a entrada
 input double SaldoAjusteSomarConta = 0.0;                          // Saldo de ajuste para somar com a conta
 
+input group "23.Finalizacao";
+input bool ExibirIndicadoresAoCarregarExpertNoGrafico = false;     // Exibir indicadores ao carregar o expert advisor em um grafico
+input bool CriarPainelEBoletaNoGrafico = false;                    // Criar painel e boleta no grafico
+input bool CriarLogDoExpertNoGrafico = false;                      // Criar log do expert no grafico
+input bool CriarEtiquetasPersonalizadasNasOrdens = false;          // Criar etiquetas personalizadas nas ordens
+input bool AlterarLayoutDoGraficoCoresFundoECandles = false;       // Alterar layout do grafico (cores de fundo e candles)
+
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
    switch(tempoGrafico)
