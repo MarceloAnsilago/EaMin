@@ -471,6 +471,13 @@ enum ENUM_ADX_ENTRADA
    ADX_ENTRADA_DI_NEGATIVO = 2                   // ADX DI-
   };
 
+enum ENUM_ADX_WILDER_ENTRADA
+  {
+   ADX_WILDER_ENTRADA_MAIN = 0,                  // ADX Wilder Main
+   ADX_WILDER_ENTRADA_DI_POSITIVO = 1,           // ADX Wilder DI+
+   ADX_WILDER_ENTRADA_DI_NEGATIVO = 2            // ADX Wilder DI-
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1108,6 +1115,10 @@ input ENUM_ICHIMOKU_ENTRADA EntradaIndicador1Ichimoku = ICHIMOKU_ENTRADA_TENKAN_
 input group "20.37.ADX";
 input int PeriodoIndicador1ADX = 14;                               // Periodo
 input ENUM_ADX_ENTRADA EntradaIndicador1ADX = ADX_ENTRADA_MAIN;    // Entrada
+
+input group "20.38.ADX Wilder";
+input int PeriodoIndicador1ADXWilder = 14;                         // Periodo
+input ENUM_ADX_WILDER_ENTRADA EntradaIndicador1ADXWilder = ADX_WILDER_ENTRADA_MAIN; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
