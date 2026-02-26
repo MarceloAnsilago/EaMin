@@ -464,6 +464,13 @@ enum ENUM_ICHIMOKU_ENTRADA
    ICHIMOKU_ENTRADA_CHINKOU_SPAN = 4             // Ichimoku Chinkou Span
   };
 
+enum ENUM_ADX_ENTRADA
+  {
+   ADX_ENTRADA_MAIN = 0,                         // ADX Main
+   ADX_ENTRADA_DI_POSITIVO = 1,                  // ADX DI+
+   ADX_ENTRADA_DI_NEGATIVO = 2                   // ADX DI-
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1097,6 +1104,10 @@ input int TenkanSenIndicador1Ichimoku = 14;                        // Tenkan-sen
 input int KijunSenIndicador1Ichimoku = 8;                          // Kijun-sen
 input int SenkouSpanBIndicador1Ichimoku = 8;                       // Senkou Span B
 input ENUM_ICHIMOKU_ENTRADA EntradaIndicador1Ichimoku = ICHIMOKU_ENTRADA_TENKAN_SEN; // Entrada
+
+input group "20.37.ADX";
+input int PeriodoIndicador1ADX = 14;                               // Periodo
+input ENUM_ADX_ENTRADA EntradaIndicador1ADX = ADX_ENTRADA_MAIN;    // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
