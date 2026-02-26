@@ -484,6 +484,11 @@ enum ENUM_GATOR_ENTRADA
    GATOR_ENTRADA_INFERIOR = 1                    // Gator Inferior
   };
 
+enum ENUM_WPR_ENTRADA
+  {
+   WPR_ENTRADA_WPR = 0                           // WPR
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1136,6 +1141,11 @@ input int DeslocamentoBocaIndicador1Gator = 3;                     // Deslocamen
 input ENUM_MA_METHOD TipoMediaIndicador1Gator = MODE_SMA;          // Tipo de media
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1Gator = PRICE_CLOSE;   // Modo de preco
 input ENUM_GATOR_ENTRADA EntradaIndicador1Gator = GATOR_ENTRADA_SUPERIOR; // Entrada
+
+input group "20.40.WPR";
+input int PeriodoIndicador1WPR = 14;                               // Periodo
+input int DesviosIndicador1WPR = 8;                                // Desvios
+input ENUM_WPR_ENTRADA EntradaIndicador1WPR = WPR_ENTRADA_WPR;     // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
