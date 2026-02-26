@@ -499,6 +499,12 @@ enum ENUM_MOMENTUM_ENTRADA
    MOMENTUM_ENTRADA_MOMENTUM = 0                 // Momentum
   };
 
+enum ENUM_RVI_ENTRADA
+  {
+   RVI_ENTRADA_PRINCIPAL = 0,                    // RVI Principal
+   RVI_ENTRADA_SINAL = 1                         // RVI Sinal
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1165,6 +1171,10 @@ input group "20.42.Momentum";
 input int PeriodoMedioIndicador1Momentum = 14;                     // Periodo Medio
 input ENUM_APPLIED_PRICE ModoPrecoIndicador1Momentum = PRICE_CLOSE; // Modo de preco
 input ENUM_MOMENTUM_ENTRADA EntradaIndicador1Momentum = MOMENTUM_ENTRADA_MOMENTUM; // Entrada
+
+input group "20.43.RVI";
+input int PeriodoIndicador1RVI = 2;                               // Periodo
+input ENUM_RVI_ENTRADA EntradaIndicador1RVI = RVI_ENTRADA_PRINCIPAL; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
