@@ -438,6 +438,32 @@ enum ENUM_AWESOME_OSCILADOR_ENTRADA
    AWESOME_OSCILADOR_ENTRADA_AWESOME_OSCILADOR = 0 // Awesome Oscilador
   };
 
+enum ENUM_CCI_ENTRADA
+  {
+   CCI_ENTRADA_CCI = 0                           // CCI
+  };
+
+enum ENUM_DEMARKER_ENTRADA
+  {
+   DEMARKER_ENTRADA_DEMARKER = 0                 // DeMarker
+  };
+
+enum ENUM_ALLIGATOR_ENTRADA
+  {
+   ALLIGATOR_ENTRADA_MANDIBULA = 0,              // Alligator mandibula
+   ALLIGATOR_ENTRADA_DENTE = 1,                  // Alligator dente
+   ALLIGATOR_ENTRADA_BOCA = 2                    // Alligator boca
+  };
+
+enum ENUM_ICHIMOKU_ENTRADA
+  {
+   ICHIMOKU_ENTRADA_TENKAN_SEN = 0,              // Ichimoku Tenkan-sen
+   ICHIMOKU_ENTRADA_KIJUN_SEN = 1,               // Ichimoku Kijun-sen
+   ICHIMOKU_ENTRADA_SENKOU_SPAN_A = 2,           // Ichimoku Senkou Span A
+   ICHIMOKU_ENTRADA_SENKOU_SPAN_B = 3,           // Ichimoku Senkou Span B
+   ICHIMOKU_ENTRADA_CHINKOU_SPAN = 4             // Ichimoku Chinkou Span
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1045,6 +1071,32 @@ input ENUM_ACCELERATOR_OSCILADOR_ENTRADA EntradaIndicador1AcceleratorOscilador =
 
 input group "20.32.Awesome Oscilador";
 input ENUM_AWESOME_OSCILADOR_ENTRADA EntradaIndicador1AwesomeOscilador = AWESOME_OSCILADOR_ENTRADA_AWESOME_OSCILADOR; // Awesome nao requer parametros
+
+input group "20.33.CCI";
+input int PeriodoIndicador1CCI = 14;                               // Periodo
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1CCI = PRICE_CLOSE;     // Modo de preco
+input ENUM_CCI_ENTRADA EntradaIndicador1CCI = CCI_ENTRADA_CCI;     // Entrada
+
+input group "20.34.DeMarker";
+input int PeriodoIndicador1DeMarker = 14;                          // Periodo
+input ENUM_DEMARKER_ENTRADA EntradaIndicador1DeMarker = DEMARKER_ENTRADA_DEMARKER; // Entrada
+
+input group "20.35.Alligator";
+input int PeriodoMandibulaIndicador1Alligator = 14;                // Periodo mandibula
+input int DeslocamentoMandibulaIndicador1Alligator = 8;            // Deslocamento mandibula
+input int PeriodoDenteIndicador1Alligator = 8;                     // Periodo dente
+input int DeslocamentoDenteIndicador1Alligator = 5;                // Deslocamento dente
+input int PeriodoBocaIndicador1Alligator = 5;                      // Periodo boca
+input int DeslocamentoBocaIndicador1Alligator = 3;                 // Deslocamento boca
+input ENUM_MA_METHOD TipoMediaIndicador1Alligator = MODE_SMA;      // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Alligator = PRICE_CLOSE; // Modo de preco
+input ENUM_ALLIGATOR_ENTRADA EntradaIndicador1Alligator = ALLIGATOR_ENTRADA_MANDIBULA; // Entrada
+
+input group "20.36.Ichimoku";
+input int TenkanSenIndicador1Ichimoku = 14;                        // Tenkan-sen
+input int KijunSenIndicador1Ichimoku = 8;                          // Kijun-sen
+input int SenkouSpanBIndicador1Ichimoku = 8;                       // Senkou Span B
+input ENUM_ICHIMOKU_ENTRADA EntradaIndicador1Ichimoku = ICHIMOKU_ENTRADA_TENKAN_SEN; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
