@@ -478,6 +478,12 @@ enum ENUM_ADX_WILDER_ENTRADA
    ADX_WILDER_ENTRADA_DI_NEGATIVO = 2            // ADX Wilder DI-
   };
 
+enum ENUM_GATOR_ENTRADA
+  {
+   GATOR_ENTRADA_SUPERIOR = 0,                   // Gator Superior
+   GATOR_ENTRADA_INFERIOR = 1                    // Gator Inferior
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1119,6 +1125,17 @@ input ENUM_ADX_ENTRADA EntradaIndicador1ADX = ADX_ENTRADA_MAIN;    // Entrada
 input group "20.38.ADX Wilder";
 input int PeriodoIndicador1ADXWilder = 14;                         // Periodo
 input ENUM_ADX_WILDER_ENTRADA EntradaIndicador1ADXWilder = ADX_WILDER_ENTRADA_MAIN; // Entrada
+
+input group "20.39.Gator";
+input int PeriodoMandibulaIndicador1Gator = 14;                    // Periodo mandibula
+input int DeslocamentoMandibulaIndicador1Gator = 8;                // Deslocamento mandibula
+input int PeriodoDenteIndicador1Gator = 8;                         // Periodo dente
+input int DeslocamentoDenteIndicador1Gator = 5;                    // Deslocamento dente
+input int PeriodoBocaIndicador1Gator = 5;                          // Periodo boca
+input int DeslocamentoBocaIndicador1Gator = 3;                     // Deslocamento boca
+input ENUM_MA_METHOD TipoMediaIndicador1Gator = MODE_SMA;          // Tipo de media
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Gator = PRICE_CLOSE;   // Modo de preco
+input ENUM_GATOR_ENTRADA EntradaIndicador1Gator = GATOR_ENTRADA_SUPERIOR; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
