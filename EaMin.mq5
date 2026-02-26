@@ -494,6 +494,11 @@ enum ENUM_MARKET_FACILITATION_INDEX_ENTRADA
    MARKET_FACILITATION_INDEX_ENTRADA_MARKET_FACILITATION_INDEX = 0 // Market Facilitation Index
   };
 
+enum ENUM_MOMENTUM_ENTRADA
+  {
+   MOMENTUM_ENTRADA_MOMENTUM = 0                 // Momentum
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1155,6 +1160,11 @@ input ENUM_WPR_ENTRADA EntradaIndicador1WPR = WPR_ENTRADA_WPR;     // Entrada
 input group "20.41.Market Facilitation Index";
 input ENUM_APPLIED_VOLUME VolumeIndicador1MarketFacilitationIndex = VOLUME_TICK; // Volume
 input ENUM_MARKET_FACILITATION_INDEX_ENTRADA EntradaIndicador1MarketFacilitationIndex = MARKET_FACILITATION_INDEX_ENTRADA_MARKET_FACILITATION_INDEX; // Entrada
+
+input group "20.42.Momentum";
+input int PeriodoMedioIndicador1Momentum = 14;                     // Periodo Medio
+input ENUM_APPLIED_PRICE ModoPrecoIndicador1Momentum = PRICE_CLOSE; // Modo de preco
+input ENUM_MOMENTUM_ENTRADA EntradaIndicador1Momentum = MOMENTUM_ENTRADA_MOMENTUM; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
