@@ -1187,6 +1187,11 @@ input ENUM_SIM_NAO ImpedirSinalSaidaVelaEntrada = SIM;             // Impedir si
 input ENUM_SIM_NAO ImpedirSinalEntradaVelaSaida = SIM;             // Impedir sinal de entrada na vela que gerou saida
 input ENUM_SIM_NAO RecalcularPrecoMedioSaidasParciais = NAO;       // Recalcular o preco medio com base nas saidas parciais
 
+input group "22.Complementos";
+input ENUM_SIM_NAO ProcurarEntradaVelaSeguinteSaida = NAO;         // Procurar entrada na vela seguinte a saida
+input ENUM_SIM_NAO ProcurarSaidaVelaSeguinteEntrada = NAO;         // Procurar saida na vela seguinte a entrada
+input double SaldoAjusteSomarConta = 0.0;                          // Saldo de ajuste para somar com a conta
+
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
    switch(tempoGrafico)
