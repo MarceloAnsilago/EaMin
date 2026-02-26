@@ -489,6 +489,11 @@ enum ENUM_WPR_ENTRADA
    WPR_ENTRADA_WPR = 0                           // WPR
   };
 
+enum ENUM_MARKET_FACILITATION_INDEX_ENTRADA
+  {
+   MARKET_FACILITATION_INDEX_ENTRADA_MARKET_FACILITATION_INDEX = 0 // Market Facilitation Index
+  };
+
 enum ENUM_DESVIO_PADRAO_ENTRADA
   {
    DESVIO_PADRAO_ENTRADA_DESVIO_PADRAO = 0       // Desvio padrao
@@ -1146,6 +1151,10 @@ input group "20.40.WPR";
 input int PeriodoIndicador1WPR = 14;                               // Periodo
 input int DesviosIndicador1WPR = 8;                                // Desvios
 input ENUM_WPR_ENTRADA EntradaIndicador1WPR = WPR_ENTRADA_WPR;     // Entrada
+
+input group "20.41.Market Facilitation Index";
+input ENUM_APPLIED_VOLUME VolumeIndicador1MarketFacilitationIndex = VOLUME_TICK; // Volume
+input ENUM_MARKET_FACILITATION_INDEX_ENTRADA EntradaIndicador1MarketFacilitationIndex = MARKET_FACILITATION_INDEX_ENTRADA_MARKET_FACILITATION_INDEX; // Entrada
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
