@@ -1176,6 +1176,17 @@ input group "20.43.RVI";
 input int PeriodoIndicador1RVI = 2;                               // Periodo
 input ENUM_RVI_ENTRADA EntradaIndicador1RVI = RVI_ENTRADA_PRINCIPAL; // Entrada
 
+input group "21.Ajustes finais";
+input ENUM_SIM_NAO CancelarPendenteEntradaSinalOposto = SIM;      // Cancelar pendente de entrada se aparecer sinal oposto
+input ENUM_SIM_NAO ReposicionarStoplossAumentoFavor = SIM;         // Reposicionar stoploss no aumento a favor da operacao
+input ENUM_SIM_NAO ReposicionarTakeprofitAumentoContra = SIM;      // Reposicionar takeprofit no aumento contra a operacao
+input ENUM_SIM_NAO MovimentarStoplossPrecoMedio = SIM;             // Movimentar stoploss com base no preco medio
+input ENUM_SIM_NAO MovimentarTakeprofitPrecoMedio = SIM;           // Movimentar takeprofit com base no preco medio
+input ENUM_SIM_NAO UsarPrecoMedioReferenciaParciais = SIM;         // Usar preco medio como referencia das parciais
+input ENUM_SIM_NAO ImpedirSinalSaidaVelaEntrada = SIM;             // Impedir sinal de saida na vela que gerou entrada
+input ENUM_SIM_NAO ImpedirSinalEntradaVelaSaida = SIM;             // Impedir sinal de entrada na vela que gerou saida
+input ENUM_SIM_NAO RecalcularPrecoMedioSaidasParciais = NAO;       // Recalcular o preco medio com base nas saidas parciais
+
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
    switch(tempoGrafico)
