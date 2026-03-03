@@ -1507,6 +1507,135 @@ void AbrirVenda()
    ultimaEntrada = TimeCurrent();
   }
 
+bool StopLossCandidatoValido(const ENUM_POSITION_TYPE tipoPosicao, const double novoSL, const double bid, const double ask, const int stopLevelPontos)
+  {
+   if(novoSL <= 0.0)
+      return false;
+
+   const double distanciaMinima = stopLevelPontos * _Point;
+
+   if(tipoPosicao == POSITION_TYPE_BUY)
+     {
+      if(novoSL >= bid)
+         return false;
+
+      if(stopLevelPontos > 0 && (bid - novoSL) < distanciaMinima)
+         return false;
+
+      return true;
+     }
+
+   if(tipoPosicao == POSITION_TYPE_SELL)
+     {
+      if(novoSL <= ask)
+         return false;
+
+      if(stopLevelPontos > 0 && (novoSL - ask) < distanciaMinima)
+         return false;
+
+      return true;
+     }
+
+   return false;
+  }
+
+void GerenciarStopLoss()
+  {
+   if(PositionsTotal() <= 0)
+      return;
+
+   double bid = 0.0;
+   double ask = 0.0;
+   if(!SymbolInfoDouble(_Symbol, SYMBOL_BID, bid) || !SymbolInfoDouble(_Symbol, SYMBOL_ASK, ask))
+     {
+      Print("Falha ao obter BID/ASK para gerenciamento de stop.");
+      return;
+     }
+
+   const int stopLevelPontos = (int)SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL);
+
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+     {
+      const ulong ticket = PositionGetTicket(i);
+      if(ticket == 0 || !PositionSelectByTicket(ticket))
+         continue;
+
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol)
+         continue;
+
+      const ENUM_POSITION_TYPE tipoPosicao = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(tipoPosicao != POSITION_TYPE_BUY && tipoPosicao != POSITION_TYPE_SELL)
+         continue;
+
+      const double precoEntrada = PositionGetDouble(POSITION_PRICE_OPEN);
+      const double slAtual = PositionGetDouble(POSITION_SL);
+      const double tpAtual = PositionGetDouble(POSITION_TP);
+      const double precoAtual = (tipoPosicao == POSITION_TYPE_BUY) ? bid : ask;
+      const double lucroPontos = (tipoPosicao == POSITION_TYPE_BUY) ? (precoAtual - precoEntrada) / _Point : (precoEntrada - precoAtual) / _Point;
+
+      double novoSL = slAtual;
+      bool alterarSL = false;
+
+      if(InicioBreakEvenSL > 0.0 && lucroPontos >= InicioBreakEvenSL)
+        {
+         const double slBreakEven = NormalizeDouble((tipoPosicao == POSITION_TYPE_BUY) ? (precoEntrada + (DistanciaBreakEvenSL * _Point)) : (precoEntrada - (DistanciaBreakEvenSL * _Point)), _Digits);
+
+         if(tipoPosicao == POSITION_TYPE_BUY)
+           {
+            if(novoSL <= 0.0 || slBreakEven > (novoSL + (_Point * 0.1)))
+              {
+               novoSL = slBreakEven;
+               alterarSL = true;
+              }
+           }
+         else
+           {
+            if(novoSL <= 0.0 || slBreakEven < (novoSL - (_Point * 0.1)))
+              {
+               novoSL = slBreakEven;
+               alterarSL = true;
+              }
+           }
+        }
+
+      if(InicioTrailingStop > 0.0 && PassoTrailingStop > 0.0 && lucroPontos >= InicioTrailingStop)
+        {
+         const double slTrailing = NormalizeDouble((tipoPosicao == POSITION_TYPE_BUY) ? (precoAtual - (PassoTrailingStop * _Point)) : (precoAtual + (PassoTrailingStop * _Point)), _Digits);
+
+         if(tipoPosicao == POSITION_TYPE_BUY)
+           {
+            if(novoSL <= 0.0 || slTrailing > (novoSL + (_Point * 0.1)))
+              {
+               novoSL = slTrailing;
+               alterarSL = true;
+              }
+           }
+         else
+           {
+            if(novoSL <= 0.0 || slTrailing < (novoSL - (_Point * 0.1)))
+              {
+               novoSL = slTrailing;
+               alterarSL = true;
+              }
+           }
+        }
+
+      if(!alterarSL)
+         continue;
+
+      novoSL = NormalizeDouble(novoSL, _Digits);
+
+      if(slAtual > 0.0 && MathAbs(novoSL - slAtual) < (_Point * 0.5))
+         continue;
+
+      if(!StopLossCandidatoValido(tipoPosicao, novoSL, bid, ask, stopLevelPontos))
+         continue;
+
+      if(!trade.PositionModify(ticket, novoSL, tpAtual))
+         PrintFormat("Falha ao modificar SL. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
+     }
+  }
+
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -1532,15 +1661,23 @@ void OnTick()
   {
 //---
    if(!PodeOperar())
+     {
+      GerenciarStopLoss();
       return;
+     }
 
    if(ExistePosicaoAberta())
+     {
+      GerenciarStopLoss();
       return;
+     }
 
    if(OperarCompra == SIM)
       AbrirCompra();
    else
       if(OperarVenda == SIM)
          AbrirVenda();
+
+   GerenciarStopLoss();
   }
 //+------------------------------------------------------------------+
