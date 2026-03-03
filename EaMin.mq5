@@ -1411,6 +1411,26 @@ bool ExistePosicaoAberta()
    return PositionSelect(_Symbol);
   }
 
+double CalcularDistanciaPreco(const ENUM_TIPO_CALCULO_DISTANCIAS tipoCalculo, const double distancia, const bool isCompra, const double precoReferencia)
+  {
+   if(distancia == 0.0 || precoReferencia <= 0.0)
+      return 0.0;
+
+   const double distanciaAbsoluta = MathAbs(distancia);
+   double variacao = 0.0;
+
+   if(tipoCalculo == EM_PONTOS)
+      variacao = distanciaAbsoluta * _Point;
+   else
+      variacao = precoReferencia * distanciaAbsoluta / 100.0;
+
+   double direcao = isCompra ? -1.0 : 1.0;
+   if(distancia < 0.0)
+      direcao *= -1.0;
+
+   return NormalizeDouble(precoReferencia + (direcao * variacao), _Digits);
+  }
+
 void AbrirCompra()
   {
    if(TipoOrdemEntrada != MERCADO)
@@ -1419,7 +1439,28 @@ void AbrirCompra()
       return;
      }
 
-   if(!trade.Buy(VolumeInicial, _Symbol))
+   double preco = 0.0;
+   if(!SymbolInfoDouble(_Symbol, SYMBOL_ASK, preco))
+     {
+      Print("Falha ao obter preco ASK para abertura de compra.");
+      return;
+     }
+
+   double sl = 0.0;
+   double tp = 0.0;
+
+   if(StoplossInicial > 0.0)
+      sl = CalcularDistanciaPreco(TipoCalculoStoploss, StoplossInicial, true, preco);
+
+   if(TakeProfitInicial > 0.0)
+      tp = CalcularDistanciaPreco(TipoCalculoTakeProfit, -TakeProfitInicial, true, preco);
+
+   if(sl > 0.0)
+      sl = NormalizeDouble(sl, _Digits);
+   if(tp > 0.0)
+      tp = NormalizeDouble(tp, _Digits);
+
+   if(!trade.Buy(VolumeInicial, _Symbol, preco, sl, tp))
      {
       PrintFormat("Falha ao abrir compra. Retcode=%d (%s)", trade.ResultRetcode(), trade.ResultRetcodeDescription());
       return;
@@ -1436,7 +1477,28 @@ void AbrirVenda()
       return;
      }
 
-   if(!trade.Sell(VolumeInicial, _Symbol))
+   double preco = 0.0;
+   if(!SymbolInfoDouble(_Symbol, SYMBOL_BID, preco))
+     {
+      Print("Falha ao obter preco BID para abertura de venda.");
+      return;
+     }
+
+   double sl = 0.0;
+   double tp = 0.0;
+
+   if(StoplossInicial > 0.0)
+      sl = CalcularDistanciaPreco(TipoCalculoStoploss, StoplossInicial, false, preco);
+
+   if(TakeProfitInicial > 0.0)
+      tp = CalcularDistanciaPreco(TipoCalculoTakeProfit, -TakeProfitInicial, false, preco);
+
+   if(sl > 0.0)
+      sl = NormalizeDouble(sl, _Digits);
+   if(tp > 0.0)
+      tp = NormalizeDouble(tp, _Digits);
+
+   if(!trade.Sell(VolumeInicial, _Symbol, preco, sl, tp))
      {
       PrintFormat("Falha ao abrir venda. Retcode=%d (%s)", trade.ResultRetcode(), trade.ResultRetcodeDescription());
       return;
