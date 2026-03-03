@@ -7,6 +7,8 @@
 #property link      "https://www.mql5.com"
 #property version   "1.00"
 
+#include <Trade/Trade.mqh>
+
 enum ENUM_SIM_NAO
   {
    NAO = 0,
@@ -1199,6 +1201,9 @@ input bool CriarLogDoExpertNoGrafico = false;                      // Criar log 
 input bool CriarEtiquetasPersonalizadasNasOrdens = false;          // Criar etiquetas personalizadas nas ordens
 input bool AlterarLayoutDoGraficoCoresFundoECandles = false;       // Alterar layout do grafico (cores de fundo e candles)
 
+CTrade trade;
+datetime ultimaEntrada = 0;
+
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
    switch(tempoGrafico)
@@ -1329,6 +1334,117 @@ double ObterPrecoReferenciaSaidaPendente(const double precoAtual, const double p
    return CalcularPrecoReferenciaPendente(ReferenciaPrecoSaida, QualVelaSaida, precoAtual, precoBase);
   }
 
+long ObterIntervaloSegundosNovaEntrada()
+  {
+   if(TempoParaNovaEntrada <= 0)
+      return 0;
+
+   switch(ReferenciaTempoFiltro)
+     {
+      case SEGUNDOS:
+         return (long)TempoParaNovaEntrada;
+      case MINUTOS:
+         return (long)TempoParaNovaEntrada * 60;
+      case HORAS:
+         return (long)TempoParaNovaEntrada * 3600;
+      case VELAS:
+        {
+         int segundosPorVela = PeriodSeconds(ObterTimeframe(TempoGrafico));
+         if(segundosPorVela <= 0)
+            segundosPorVela = PeriodSeconds((ENUM_TIMEFRAMES)_Period);
+
+         if(segundosPorVela <= 0)
+            return 0;
+
+         return (long)TempoParaNovaEntrada * segundosPorVela;
+        }
+      default:
+         return (long)TempoParaNovaEntrada;
+     }
+  }
+
+bool PodeOperar()
+  {
+   const datetime agora = TimeCurrent();
+   MqlDateTime tempoAtual;
+   TimeToStruct(agora, tempoAtual);
+
+   const int horaInicialMinuto = (int)HorarioInicialHora * 60 + MathMax(0, MathMin(59, HorarioInicialMin));
+   const int horaFinalMinuto = (int)HorarioFinalHora * 60 + MathMax(0, MathMin(59, HorarioFinalMin));
+   const int minutoAtual = tempoAtual.hour * 60 + tempoAtual.min;
+
+   bool horarioPermitido = false;
+   if(horaInicialMinuto <= horaFinalMinuto)
+      horarioPermitido = (minutoAtual >= horaInicialMinuto && minutoAtual <= horaFinalMinuto);
+   else
+      horarioPermitido = (minutoAtual >= horaInicialMinuto || minutoAtual <= horaFinalMinuto);
+
+   if(!horarioPermitido)
+      return false;
+
+   if(SpreadMaximo > 0)
+     {
+      MqlTick tick;
+      if(!SymbolInfoTick(_Symbol, tick))
+        {
+         Print("Nao foi possivel obter o tick atual para validar spread.");
+         return false;
+        }
+
+      const double spreadPontos = (tick.ask - tick.bid) / _Point;
+      if(spreadPontos > SpreadMaximo)
+         return false;
+     }
+
+   if(ultimaEntrada > 0 && TempoParaNovaEntrada > 0)
+     {
+      const long intervaloMinimo = ObterIntervaloSegundosNovaEntrada();
+      if(intervaloMinimo > 0 && (agora - ultimaEntrada) < intervaloMinimo)
+         return false;
+     }
+
+   return true;
+  }
+
+bool ExistePosicaoAberta()
+  {
+   return PositionSelect(_Symbol);
+  }
+
+void AbrirCompra()
+  {
+   if(TipoOrdemEntrada != MERCADO)
+     {
+      Print("TipoOrdemEntrada = PENDENTE ainda nao implementado nesta etapa.");
+      return;
+     }
+
+   if(!trade.Buy(VolumeInicial, _Symbol))
+     {
+      PrintFormat("Falha ao abrir compra. Retcode=%d (%s)", trade.ResultRetcode(), trade.ResultRetcodeDescription());
+      return;
+     }
+
+   ultimaEntrada = TimeCurrent();
+  }
+
+void AbrirVenda()
+  {
+   if(TipoOrdemEntrada != MERCADO)
+     {
+      Print("TipoOrdemEntrada = PENDENTE ainda nao implementado nesta etapa.");
+      return;
+     }
+
+   if(!trade.Sell(VolumeInicial, _Symbol))
+     {
+      PrintFormat("Falha ao abrir venda. Retcode=%d (%s)", trade.ResultRetcode(), trade.ResultRetcodeDescription());
+      return;
+     }
+
+   ultimaEntrada = TimeCurrent();
+  }
+
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -1353,6 +1469,16 @@ void OnDeinit(const int reason)
 void OnTick()
   {
 //---
-   
+   if(!PodeOperar())
+      return;
+
+   if(ExistePosicaoAberta())
+      return;
+
+   if(OperarCompra == SIM)
+      AbrirCompra();
+   else
+      if(OperarVenda == SIM)
+         AbrirVenda();
   }
 //+------------------------------------------------------------------+
