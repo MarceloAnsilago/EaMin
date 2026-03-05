@@ -1203,6 +1203,7 @@ input bool AlterarLayoutDoGraficoCoresFundoECandles = false;       // Alterar la
 
 CTrade trade;
 datetime ultimaEntrada = 0;
+int handleCanal = INVALID_HANDLE;
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
@@ -1409,6 +1410,190 @@ bool PodeOperar()
 bool ExistePosicaoAberta()
   {
    return PositionSelect(_Symbol);
+  }
+
+bool CanalBandasHabilitado()
+  {
+   return (IndicadorCanalBandas != BANDAS_NAO_USAR && EntradaCanalBandas != ENTRADA_NAO_USAR);
+  }
+
+bool ObterValoresCanalPorDeslocamento(const int deslocamento, double &bandaSuperior, double &bandaMedia, double &bandaInferior)
+  {
+   if(handleCanal == INVALID_HANDLE)
+      return false;
+
+   double upper[];
+   double middle[];
+   double lower[];
+   ArrayResize(upper, 1);
+   ArrayResize(middle, 1);
+   ArrayResize(lower, 1);
+   ArraySetAsSeries(upper, true);
+   ArraySetAsSeries(middle, true);
+   ArraySetAsSeries(lower, true);
+
+   if(CopyBuffer(handleCanal, 0, deslocamento, 1, upper) < 1)
+      return false;
+   if(CopyBuffer(handleCanal, 1, deslocamento, 1, middle) < 1)
+      return false;
+   if(CopyBuffer(handleCanal, 2, deslocamento, 1, lower) < 1)
+      return false;
+
+   bandaSuperior = upper[0];
+   bandaMedia = middle[0];
+   bandaInferior = lower[0];
+
+   if(bandaSuperior == EMPTY_VALUE || bandaMedia == EMPTY_VALUE || bandaInferior == EMPTY_VALUE)
+      return false;
+
+   return true;
+  }
+
+bool ObterValoresCanal(double &bandaSuperior, double &bandaMedia, double &bandaInferior)
+  {
+   return ObterValoresCanalPorDeslocamento(0, bandaSuperior, bandaMedia, bandaInferior);
+  }
+
+bool ObterFechamentosCanal(double &fechamentoAtual, double &fechamentoAnterior)
+  {
+   double closes[];
+   ArrayResize(closes, 2);
+   ArraySetAsSeries(closes, true);
+
+   if(CopyClose(_Symbol, ObterTimeframe(TempoGrafico), 0, 2, closes) < 2)
+      return false;
+
+   fechamentoAtual = closes[0];
+   fechamentoAnterior = closes[1];
+   return true;
+  }
+
+bool SinalCanalCompra()
+  {
+   if(!CanalBandasHabilitado())
+      return false;
+
+   double fechamentoAtual = 0.0;
+   double fechamentoAnterior = 0.0;
+   if(!ObterFechamentosCanal(fechamentoAtual, fechamentoAnterior))
+      return false;
+
+   switch(EntradaCanalBandas)
+     {
+      case ENTRADA_FECHOU_FORA:
+        {
+         double bandaSuperiorAnterior = 0.0;
+         double bandaMediaAnterior = 0.0;
+         double bandaInferiorAnterior = 0.0;
+         if(!ObterValoresCanalPorDeslocamento(1, bandaSuperiorAnterior, bandaMediaAnterior, bandaInferiorAnterior))
+            return false;
+
+         return (fechamentoAnterior > bandaSuperiorAnterior);
+        }
+      case ENTRADA_ESTANDO_FORA:
+        {
+         double bandaSuperior = 0.0;
+         double bandaMedia = 0.0;
+         double bandaInferior = 0.0;
+         if(!ObterValoresCanal(bandaSuperior, bandaMedia, bandaInferior))
+            return false;
+
+         return (fechamentoAtual > bandaSuperior);
+        }
+      default:
+         return false;
+     }
+  }
+
+bool SinalCanalVenda()
+  {
+   if(!CanalBandasHabilitado())
+      return false;
+
+   double fechamentoAtual = 0.0;
+   double fechamentoAnterior = 0.0;
+   if(!ObterFechamentosCanal(fechamentoAtual, fechamentoAnterior))
+      return false;
+
+   switch(EntradaCanalBandas)
+     {
+      case ENTRADA_FECHOU_FORA:
+        {
+         double bandaSuperiorAnterior = 0.0;
+         double bandaMediaAnterior = 0.0;
+         double bandaInferiorAnterior = 0.0;
+         if(!ObterValoresCanalPorDeslocamento(1, bandaSuperiorAnterior, bandaMediaAnterior, bandaInferiorAnterior))
+            return false;
+
+         return (fechamentoAnterior < bandaInferiorAnterior);
+        }
+      case ENTRADA_ESTANDO_FORA:
+        {
+         double bandaSuperior = 0.0;
+         double bandaMedia = 0.0;
+         double bandaInferior = 0.0;
+         if(!ObterValoresCanal(bandaSuperior, bandaMedia, bandaInferior))
+            return false;
+
+         return (fechamentoAtual < bandaInferior);
+        }
+      default:
+         return false;
+     }
+  }
+
+bool SinalSaidaCanal(const ENUM_POSITION_TYPE tipoPosicao)
+  {
+   if(handleCanal == INVALID_HANDLE)
+      return false;
+
+   if(SaidaCanalBandas != SAIDA_CRUZAR_CENTRO)
+      return false;
+
+   double fechamentoAtual = 0.0;
+   double fechamentoAnterior = 0.0;
+   if(!ObterFechamentosCanal(fechamentoAtual, fechamentoAnterior))
+      return false;
+
+   double bandaSuperiorAtual = 0.0;
+   double bandaMediaAtual = 0.0;
+   double bandaInferiorAtual = 0.0;
+   if(!ObterValoresCanalPorDeslocamento(0, bandaSuperiorAtual, bandaMediaAtual, bandaInferiorAtual))
+      return false;
+
+   double bandaSuperiorAnterior = 0.0;
+   double bandaMediaAnterior = 0.0;
+   double bandaInferiorAnterior = 0.0;
+   if(!ObterValoresCanalPorDeslocamento(1, bandaSuperiorAnterior, bandaMediaAnterior, bandaInferiorAnterior))
+      return false;
+
+   if(tipoPosicao == POSITION_TYPE_BUY)
+      return (fechamentoAnterior > bandaMediaAnterior && fechamentoAtual <= bandaMediaAtual);
+
+   if(tipoPosicao == POSITION_TYPE_SELL)
+      return (fechamentoAnterior < bandaMediaAnterior && fechamentoAtual >= bandaMediaAtual);
+
+   return false;
+  }
+
+void GerenciarSaidaCanal()
+  {
+   if(!PositionSelect(_Symbol))
+      return;
+
+   if(TipoOrdemSaida != MERCADO)
+      return;
+
+   const ENUM_POSITION_TYPE tipoPosicao = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+   if(tipoPosicao != POSITION_TYPE_BUY && tipoPosicao != POSITION_TYPE_SELL)
+      return;
+
+   if(!SinalSaidaCanal(tipoPosicao))
+      return;
+
+   const ulong ticket = (ulong)PositionGetInteger(POSITION_TICKET);
+   if(!trade.PositionClose(ticket))
+      PrintFormat("Falha ao fechar posicao por saida do canal. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
   }
 
 double CalcularDistanciaPreco(const ENUM_TIPO_CALCULO_DISTANCIAS tipoCalculo, const double distancia, const bool isCompra, const double precoReferencia)
@@ -1642,7 +1827,38 @@ void GerenciarStopLoss()
 int OnInit()
   {
 //---
-   
+   const ENUM_TIMEFRAMES timeframe = ObterTimeframe(TempoGrafico);
+   handleCanal = INVALID_HANDLE;
+
+   switch(IndicadorCanalBandas)
+     {
+      case BANDAS_NAO_USAR:
+         break;
+      case BANDAS_BOLLINGER:
+         handleCanal = iBands(_Symbol, timeframe, PeriodoBandasBolinger, DeslocamentoBandasBolinger, DesviosBandasBolinger, ModoPrecoBandasBolinger);
+         break;
+      case BANDAS_ENVELOPES:
+         handleCanal = iCustom(_Symbol, timeframe, "Canais\\Envelopes", PeriodoEnvelopes, DeslocamentoEnvelopes, TipoMediaEnvelopes, ModoPrecoEnvelopes, DesviosEnvelopes);
+         break;
+      case BANDAS_KELTNER:
+         handleCanal = iCustom(_Symbol, timeframe, "Canais\\Keltner", PeriodoKeltner, DesviosKeltner);
+         break;
+      case BANDAS_DONCHIAN:
+         handleCanal = iCustom(_Symbol, timeframe, "Canais\\Dochian", PeriodoDochian);
+         break;
+      case BANDAS_ATR:
+         handleCanal = iCustom(_Symbol, timeframe, "Canais\\Canal-ATR", PeriodoCanalATR, DesviosCanalATR);
+         break;
+      default:
+         PrintFormat("Indicador de canal nao suportado: %d", (int)IndicadorCanalBandas);
+         return(INIT_FAILED);
+     }
+
+   if(IndicadorCanalBandas != BANDAS_NAO_USAR && handleCanal == INVALID_HANDLE)
+     {
+      PrintFormat("Falha ao criar handle do canal. Indicador=%d Erro=%d", (int)IndicadorCanalBandas, GetLastError());
+      return(INIT_FAILED);
+     }
 //---
    return(INIT_SUCCEEDED);
   }
@@ -1652,7 +1868,12 @@ int OnInit()
 void OnDeinit(const int reason)
   {
 //---
-   
+   if(handleCanal != INVALID_HANDLE)
+     {
+      IndicatorRelease(handleCanal);
+      handleCanal = INVALID_HANDLE;
+     }
+
   }
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
@@ -1663,21 +1884,36 @@ void OnTick()
    if(!PodeOperar())
      {
       GerenciarStopLoss();
+      GerenciarSaidaCanal();
       return;
      }
 
    if(ExistePosicaoAberta())
      {
       GerenciarStopLoss();
+      GerenciarSaidaCanal();
       return;
      }
 
-   if(OperarCompra == SIM)
-      AbrirCompra();
+   if(CanalBandasHabilitado())
+     {
+      if(OperarCompra == SIM && SinalCanalCompra())
+         AbrirCompra();
+      else
+         if(OperarVenda == SIM && SinalCanalVenda())
+            AbrirVenda();
+     }
+
    else
-      if(OperarVenda == SIM)
-         AbrirVenda();
+     {
+      if(OperarCompra == SIM)
+         AbrirCompra();
+      else
+         if(OperarVenda == SIM)
+            AbrirVenda();
+     }
 
    GerenciarStopLoss();
+   GerenciarSaidaCanal();
   }
 //+------------------------------------------------------------------+
