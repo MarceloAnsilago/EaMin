@@ -1203,6 +1203,7 @@ input bool AlterarLayoutDoGraficoCoresFundoECandles = false;       // Alterar la
 
 CTrade trade;
 datetime ultimaEntrada = 0;
+datetime ultimaVelaEntrada = 0;
 int handleCanal = INVALID_HANDLE;
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
@@ -1269,6 +1270,21 @@ int ObterDeslocamentoVela(const ENUM_QUAL_VELA qualVela)
       default:
          return 1;
      }
+  }
+
+bool IsNewBar()
+  {
+   static datetime ultimaBarra = 0;
+
+   const datetime tempoAtual = iTime(_Symbol, _Period, 0);
+
+   if(tempoAtual != ultimaBarra)
+     {
+      ultimaBarra = tempoAtual;
+      return true;
+     }
+
+   return false;
   }
 
 bool ObterVelaPorDeslocamento(const int deslocamento, MqlRates &vela)
@@ -1488,7 +1504,10 @@ bool SinalCanalCompra()
          if(!ObterValoresCanalPorDeslocamento(1, bandaSuperiorAnterior, bandaMediaAnterior, bandaInferiorAnterior))
             return false;
 
-         return (fechamentoAnterior > bandaSuperiorAnterior);
+         if(SentidoCanalBandas == SENTIDO_TENDENCIA)
+            return (fechamentoAnterior > bandaSuperiorAnterior);
+
+         return (fechamentoAnterior < bandaInferiorAnterior);
         }
       case ENTRADA_ESTANDO_FORA:
         {
@@ -1498,7 +1517,10 @@ bool SinalCanalCompra()
          if(!ObterValoresCanal(bandaSuperior, bandaMedia, bandaInferior))
             return false;
 
-         return (fechamentoAtual > bandaSuperior);
+         if(SentidoCanalBandas == SENTIDO_TENDENCIA)
+            return (fechamentoAtual > bandaSuperior);
+
+         return (fechamentoAtual < bandaInferior);
         }
       default:
          return false;
@@ -1525,7 +1547,10 @@ bool SinalCanalVenda()
          if(!ObterValoresCanalPorDeslocamento(1, bandaSuperiorAnterior, bandaMediaAnterior, bandaInferiorAnterior))
             return false;
 
-         return (fechamentoAnterior < bandaInferiorAnterior);
+         if(SentidoCanalBandas == SENTIDO_TENDENCIA)
+            return (fechamentoAnterior < bandaInferiorAnterior);
+
+         return (fechamentoAnterior > bandaSuperiorAnterior);
         }
       case ENTRADA_ESTANDO_FORA:
         {
@@ -1535,7 +1560,10 @@ bool SinalCanalVenda()
          if(!ObterValoresCanal(bandaSuperior, bandaMedia, bandaInferior))
             return false;
 
-         return (fechamentoAtual < bandaInferior);
+         if(SentidoCanalBandas == SENTIDO_TENDENCIA)
+            return (fechamentoAtual < bandaInferior);
+
+         return (fechamentoAtual > bandaSuperior);
         }
       default:
          return false;
@@ -1881,6 +1909,9 @@ void OnDeinit(const int reason)
 void OnTick()
   {
 //---
+   if(!IsNewBar())
+      return;
+
    if(!PodeOperar())
      {
       GerenciarStopLoss();
@@ -1898,19 +1929,47 @@ void OnTick()
    if(CanalBandasHabilitado())
      {
       if(OperarCompra == SIM && SinalCanalCompra())
-         AbrirCompra();
+        {
+         const datetime velaAtual = iTime(_Symbol, _Period, 0);
+         if(velaAtual != ultimaVelaEntrada)
+           {
+            ultimaVelaEntrada = velaAtual;
+            AbrirCompra();
+           }
+        }
       else
          if(OperarVenda == SIM && SinalCanalVenda())
-            AbrirVenda();
+           {
+            const datetime velaAtual = iTime(_Symbol, _Period, 0);
+            if(velaAtual != ultimaVelaEntrada)
+              {
+               ultimaVelaEntrada = velaAtual;
+               AbrirVenda();
+              }
+           }
      }
 
    else
      {
       if(OperarCompra == SIM)
-         AbrirCompra();
+        {
+         const datetime velaAtual = iTime(_Symbol, _Period, 0);
+         if(velaAtual != ultimaVelaEntrada)
+           {
+            ultimaVelaEntrada = velaAtual;
+            AbrirCompra();
+           }
+        }
       else
          if(OperarVenda == SIM)
-            AbrirVenda();
+           {
+            const datetime velaAtual = iTime(_Symbol, _Period, 0);
+            if(velaAtual != ultimaVelaEntrada)
+              {
+               ultimaVelaEntrada = velaAtual;
+               AbrirVenda();
+              }
+           }
      }
 
    GerenciarStopLoss();
