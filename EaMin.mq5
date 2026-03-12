@@ -1207,6 +1207,21 @@ datetime ultimaVelaEntrada = 0;
 int handleCanal = INVALID_HANDLE;
 int handleMA = INVALID_HANDLE;
 
+//+------------------------------------------------------------------+
+//| CACHE DE DADOS DA VELA - OTIMIZACAO DE PERFORMANCE
+//+------------------------------------------------------------------+
+struct DadosVela
+  {
+   double open0;      // Abertura da vela atual
+   double open1;      // Abertura da vela anterior
+   double close0;     // Fechamento da vela atual
+   double close1;     // Fechamento da vela anterior
+   double high0;      // Maxima da vela atual
+   double low0;       // Minima da vela atual
+  };
+
+DadosVela dados;
+
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
    switch(tempoGrafico)
@@ -1440,15 +1455,27 @@ double ObterValorFonte(const ENUM_SINAL_FONTE fonte, const int shift)
    switch(fonte)
      {
       case FONTE_FECHAMENTO_VELA:
+         if(shift == 0)
+            return dados.close0;
+         if(shift == 1)
+            return dados.close1;
          return iClose(_Symbol, timeframe, shift);
 
       case FONTE_ABERTURA_VELA:
+         if(shift == 0)
+            return dados.open0;
+         if(shift == 1)
+            return dados.open1;
          return iOpen(_Symbol, timeframe, shift);
 
       case FONTE_MAXIMA_VELA:
+         if(shift == 0)
+            return dados.high0;
          return iHigh(_Symbol, timeframe, shift);
 
       case FONTE_MINIMA_VELA:
+         if(shift == 0)
+            return dados.low0;
          return iLow(_Symbol, timeframe, shift);
 
       case FONTE_MEDIA_MOVEL:
@@ -1631,15 +1658,8 @@ bool ObterValoresCanal(double &bandaSuperior, double &bandaMedia, double &bandaI
 
 bool ObterFechamentosCanal(double &fechamentoAtual, double &fechamentoAnterior)
   {
-   double closes[];
-   ArrayResize(closes, 2);
-   ArraySetAsSeries(closes, true);
-
-   if(CopyClose(_Symbol, ObterTimeframe(TempoGrafico), 0, 2, closes) < 2)
-      return false;
-
-   fechamentoAtual = closes[0];
-   fechamentoAnterior = closes[1];
+   fechamentoAtual = dados.close0;
+   fechamentoAnterior = dados.close1;
    return true;
   }
 
@@ -2094,11 +2114,29 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
+void AtualizarDadosVela()
+  {
+   MqlRates rates[2];
+
+   if(CopyRates(_Symbol, ObterTimeframe(TempoGrafico), 0, 2, rates) < 2)
+      return;
+
+   dados.open0 = rates[0].open;
+   dados.close0 = rates[0].close;
+   dados.high0 = rates[0].high;
+   dados.low0 = rates[0].low;
+
+   dados.open1 = rates[1].open;
+   dados.close1 = rates[1].close;
+  }
+
 void OnTick()
   {
 //---
    if(!IsNewBar())
       return;
+
+   AtualizarDadosVela();
 
    if(!PodeOperar())
      {
