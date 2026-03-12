@@ -1206,6 +1206,10 @@ datetime ultimaEntrada = 0;
 datetime ultimaVelaEntrada = 0;
 int handleCanal = INVALID_HANDLE;
 int handleMA = INVALID_HANDLE;
+int handleRSI = INVALID_HANDLE;
+int handleStochastic = INVALID_HANDLE;
+int handleCCI = INVALID_HANDLE;
+int handleMFI = INVALID_HANDLE;
 
 //+------------------------------------------------------------------+
 //| CACHE DE DADOS DA VELA - OTIMIZACAO DE PERFORMANCE
@@ -1614,6 +1618,134 @@ bool SinalSaidaCruzamento(const bool compra)
       return CruzouParaBaixo(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior);
    else
       return CruzouParaCima(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior);
+  }
+
+//+------------------------------------------------------------------+
+//| MODULO 19 - OSCILADORES (SOBRECOMPRA/SOBREVENDA)
+//+------------------------------------------------------------------+
+
+double ObterValorOscilador(const ENUM_OSCILADOR_INDICADOR indicador, const int shift)
+  {
+   double valor[];
+   ArrayResize(valor, 1);
+   ArraySetAsSeries(valor, true);
+
+   switch(indicador)
+     {
+      case RSI:
+         if(handleRSI == INVALID_HANDLE)
+            return 0.0;
+         if(CopyBuffer(handleRSI, 0, shift, 1, valor) < 1)
+            return 0.0;
+         return valor[0];
+
+      case ESTOCASTICO:
+         if(handleStochastic == INVALID_HANDLE)
+            return 0.0;
+         if(CopyBuffer(handleStochastic, 0, shift, 1, valor) < 1)
+            return 0.0;
+         return valor[0];
+
+      case CCI:
+         if(handleCCI == INVALID_HANDLE)
+            return 0.0;
+         if(CopyBuffer(handleCCI, 0, shift, 1, valor) < 1)
+            return 0.0;
+         return valor[0];
+
+      case MFI:
+         if(handleMFI == INVALID_HANDLE)
+            return 0.0;
+         if(CopyBuffer(handleMFI, 0, shift, 1, valor) < 1)
+            return 0.0;
+         return valor[0];
+
+      default:
+         return 0.0;
+     }
+  }
+
+bool OsciladorHabilitado()
+  {
+   return (IndicadorSobreCompraVenda != NAO_USAR && EntradaSobreCompraVenda != OSCILADOR_ENTRADA_NAO_USAR);
+  }
+
+bool SinalOsciladorCompra()
+  {
+   if(!OsciladorHabilitado())
+      return false;
+
+   double valorAtual = ObterValorOscilador(IndicadorSobreCompraVenda, 0);
+   double valorAnterior = ObterValorOscilador(IndicadorSobreCompraVenda, 1);
+
+   if(valorAtual == 0.0 && valorAnterior == 0.0)
+      return false;
+
+   bool estaEmSobrevenda = (valorAtual < NivelSobrevenda);
+
+   if(EntradaSobreCompraVenda == OSCILADOR_ENTRADA_FECHOU_FORA)
+     {
+      bool estava = (valorAnterior < NivelSobrevenda);
+      if(estava && !estaEmSobrevenda)
+        {
+         if(SentidoSobreCompraVenda == OSCILADOR_SENTIDO_TENDENCIA)
+            return true;  // Sobrevenda -> compra (tendencia)
+         else
+            return false; // Sobrevenda -> nao compra (contra)
+        }
+     }
+
+   if(EntradaSobreCompraVenda == OSCILADOR_ENTRADA_ESTANDO_FORA)
+     {
+      if(estaEmSobrevenda)
+        {
+         if(SentidoSobreCompraVenda == OSCILADOR_SENTIDO_TENDENCIA)
+            return true;  // Estando em sobrevenda -> compra (tendencia)
+         else
+            return false; // Estando em sobrevenda -> nao compra (contra)
+        }
+     }
+
+   return false;
+  }
+
+bool SinalOsciladorVenda()
+  {
+   if(!OsciladorHabilitado())
+      return false;
+
+   double valorAtual = ObterValorOscilador(IndicadorSobreCompraVenda, 0);
+   double valorAnterior = ObterValorOscilador(IndicadorSobreCompraVenda, 1);
+
+   if(valorAtual == 0.0 && valorAnterior == 0.0)
+      return false;
+
+   bool estaEmSobrecompra = (valorAtual > NivelSobrecompra);
+
+   if(EntradaSobreCompraVenda == OSCILADOR_ENTRADA_FECHOU_FORA)
+     {
+      bool estava = (valorAnterior > NivelSobrecompra);
+      if(estava && !estaEmSobrecompra)
+        {
+         if(SentidoSobreCompraVenda == OSCILADOR_SENTIDO_TENDENCIA)
+            return true;  // Sobrecompra -> venda (tendencia)
+         else
+            return false; // Sobrecompra -> nao venda (contra)
+        }
+     }
+
+   if(EntradaSobreCompraVenda == OSCILADOR_ENTRADA_ESTANDO_FORA)
+     {
+      if(estaEmSobrecompra)
+        {
+         if(SentidoSobreCompraVenda == OSCILADOR_SENTIDO_TENDENCIA)
+            return true;  // Estando em sobrecompra -> venda (tendencia)
+         else
+            return false; // Estando em sobrecompra -> nao venda (contra)
+        }
+     }
+
+   return false;
   }
 
 //+------------------------------------------------------------------+
@@ -2093,6 +2225,52 @@ int OnInit()
         }
      }
 
+   // Inicializar handles de osciladores
+   if(IndicadorSobreCompraVenda != NAO_USAR)
+     {
+      switch(IndicadorSobreCompraVenda)
+        {
+         case RSI:
+            handleRSI = iRSI(_Symbol, timeframe, PeriodoRSI, ModoPrecoRSI);
+            if(handleRSI == INVALID_HANDLE)
+              {
+               PrintFormat("Falha ao criar handle RSI. Erro=%d", GetLastError());
+               return(INIT_FAILED);
+              }
+            break;
+
+         case ESTOCASTICO:
+            handleStochastic = iStochastic(_Symbol, timeframe, KPeriodoEstocastico, DPeriodoEstocastico, LentidaoEstocastico, TipoMediaEstocastico, TipoEstocastico);
+            if(handleStochastic == INVALID_HANDLE)
+              {
+               PrintFormat("Falha ao criar handle Estocastico. Erro=%d", GetLastError());
+               return(INIT_FAILED);
+              }
+            break;
+
+         case CCI:
+            handleCCI = iCCI(_Symbol, timeframe, PeriodoCCI, ModoPrecoCCI);
+            if(handleCCI == INVALID_HANDLE)
+              {
+               PrintFormat("Falha ao criar handle CCI. Erro=%d", GetLastError());
+               return(INIT_FAILED);
+              }
+            break;
+
+         case MFI:
+            handleMFI = iMFI(_Symbol, timeframe, PeriodoMFI, VolumeMFI);
+            if(handleMFI == INVALID_HANDLE)
+              {
+               PrintFormat("Falha ao criar handle MFI. Erro=%d", GetLastError());
+               return(INIT_FAILED);
+              }
+            break;
+
+         default:
+            break;
+        }
+     }
+
 //---
    return(INIT_SUCCEEDED);
   }
@@ -2112,6 +2290,30 @@ void OnDeinit(const int reason)
      {
       IndicatorRelease(handleMA);
       handleMA = INVALID_HANDLE;
+     }
+
+   if(handleRSI != INVALID_HANDLE)
+     {
+      IndicatorRelease(handleRSI);
+      handleRSI = INVALID_HANDLE;
+     }
+
+   if(handleStochastic != INVALID_HANDLE)
+     {
+      IndicatorRelease(handleStochastic);
+      handleStochastic = INVALID_HANDLE;
+     }
+
+   if(handleCCI != INVALID_HANDLE)
+     {
+      IndicatorRelease(handleCCI);
+      handleCCI = INVALID_HANDLE;
+     }
+
+   if(handleMFI != INVALID_HANDLE)
+     {
+      IndicatorRelease(handleMFI);
+      handleMFI = INVALID_HANDLE;
      }
 
   }
@@ -2181,6 +2383,30 @@ void OnTick()
         }
       else
          if(OperarVenda == SIM && SinalCruzamentoVenda())
+           {
+            const datetime velaAtual = iTime(_Symbol, _Period, 0);
+            if(velaAtual != ultimaVelaEntrada)
+              {
+               ultimaVelaEntrada = velaAtual;
+               AbrirVenda();
+              }
+           }
+     }
+
+   // Modulo 19 - Osciladores (Sobrecompra/Sobrevenda)
+   else if(OsciladorHabilitado())
+     {
+      if(OperarCompra == SIM && SinalOsciladorCompra())
+        {
+         const datetime velaAtual = iTime(_Symbol, _Period, 0);
+         if(velaAtual != ultimaVelaEntrada)
+           {
+            ultimaVelaEntrada = velaAtual;
+            AbrirCompra();
+           }
+        }
+      else
+         if(OperarVenda == SIM && SinalOsciladorVenda())
            {
             const datetime velaAtual = iTime(_Symbol, _Period, 0);
             if(velaAtual != ultimaVelaEntrada)
