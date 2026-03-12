@@ -1205,6 +1205,7 @@ CTrade trade;
 datetime ultimaEntrada = 0;
 datetime ultimaVelaEntrada = 0;
 int handleCanal = INVALID_HANDLE;
+int handleMA = INVALID_HANDLE;
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
@@ -1428,6 +1429,164 @@ bool ExistePosicaoAberta()
    return PositionSelect(_Symbol);
   }
 
+//+------------------------------------------------------------------+
+//| MODULO 18 - CRUZAMENTO DE SINAIS
+//+------------------------------------------------------------------+
+
+double ObterValorFonte(const ENUM_SINAL_FONTE fonte, const int shift)
+  {
+   const ENUM_TIMEFRAMES timeframe = ObterTimeframe(TempoGrafico);
+
+   switch(fonte)
+     {
+      case FONTE_FECHAMENTO_VELA:
+         return iClose(_Symbol, timeframe, shift);
+
+      case FONTE_ABERTURA_VELA:
+         return iOpen(_Symbol, timeframe, shift);
+
+      case FONTE_MAXIMA_VELA:
+         return iHigh(_Symbol, timeframe, shift);
+
+      case FONTE_MINIMA_VELA:
+         return iLow(_Symbol, timeframe, shift);
+
+      case FONTE_MEDIA_MOVEL:
+        {
+         if(handleMA == INVALID_HANDLE)
+            return 0.0;
+
+         double valor[];
+         ArrayResize(valor, 1);
+         ArraySetAsSeries(valor, true);
+
+         if(CopyBuffer(handleMA, 0, shift, 1, valor) < 1)
+            return 0.0;
+
+         return valor[0];
+        }
+
+      default:
+         return 0.0;
+     }
+  }
+
+bool CruzouParaCima(const double rapido0, const double rapido1, const double lento0, const double lento1)
+  {
+   return (rapido1 < lento1 && rapido0 > lento0);
+  }
+
+bool CruzouParaBaixo(const double rapido0, const double rapido1, const double lento0, const double lento1)
+  {
+   return (rapido1 > lento1 && rapido0 < lento0);
+  }
+
+bool SinalCruzamentoCompra()
+  {
+   if(EntradaCruzamento == SINAL_ENTRADA_NAO_USAR)
+      return false;
+
+   double rapidoAtual = ObterValorFonte(SinalRapido, 0);
+   double rapidoAnterior = ObterValorFonte(SinalRapido, 1);
+
+   double lentoAtual = ObterValorFonte(SinalLento, 0);
+   double lentoAnterior = ObterValorFonte(SinalLento, 1);
+
+   if(rapidoAtual == 0.0 || rapidoAnterior == 0.0 || lentoAtual == 0.0 || lentoAnterior == 0.0)
+      return false;
+
+   bool cruzouParaCima = CruzouParaCima(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior);
+
+   if(EntradaCruzamento == SINAL_ENTRADA_CRUZAMENTO)
+     {
+      if(SentidoCruzamento == SINAL_SENTIDO_TENDENCIA)
+         return cruzouParaCima;
+      else
+         return CruzouParaBaixo(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior);
+     }
+
+   if(EntradaCruzamento == SINAL_ENTRADA_CRUZAMENTO_FECHANDO)
+     {
+      double rapidoShift2 = ObterValorFonte(SinalRapido, 2);
+      double lentoShift2 = ObterValorFonte(SinalLento, 2);
+
+      if(rapidoShift2 == 0.0 || lentoShift2 == 0.0)
+         return false;
+
+      if(SentidoCruzamento == SINAL_SENTIDO_TENDENCIA)
+         return cruzouParaCima && CruzouParaCima(rapidoAnterior, rapidoShift2, lentoAnterior, lentoShift2);
+      else
+         return CruzouParaBaixo(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior) && 
+                CruzouParaBaixo(rapidoAnterior, rapidoShift2, lentoAnterior, lentoShift2);
+     }
+
+   return false;
+  }
+
+bool SinalCruzamentoVenda()
+  {
+   if(EntradaCruzamento == SINAL_ENTRADA_NAO_USAR)
+      return false;
+
+   double rapidoAtual = ObterValorFonte(SinalRapido, 0);
+   double rapidoAnterior = ObterValorFonte(SinalRapido, 1);
+
+   double lentoAtual = ObterValorFonte(SinalLento, 0);
+   double lentoAnterior = ObterValorFonte(SinalLento, 1);
+
+   if(rapidoAtual == 0.0 || rapidoAnterior == 0.0 || lentoAtual == 0.0 || lentoAnterior == 0.0)
+      return false;
+
+   bool cruzouParaBaixo = CruzouParaBaixo(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior);
+
+   if(EntradaCruzamento == SINAL_ENTRADA_CRUZAMENTO)
+     {
+      if(SentidoCruzamento == SINAL_SENTIDO_TENDENCIA)
+         return cruzouParaBaixo;
+      else
+         return CruzouParaCima(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior);
+     }
+
+   if(EntradaCruzamento == SINAL_ENTRADA_CRUZAMENTO_FECHANDO)
+     {
+      double rapidoShift2 = ObterValorFonte(SinalRapido, 2);
+      double lentoShift2 = ObterValorFonte(SinalLento, 2);
+
+      if(rapidoShift2 == 0.0 || lentoShift2 == 0.0)
+         return false;
+
+      if(SentidoCruzamento == SINAL_SENTIDO_TENDENCIA)
+         return cruzouParaBaixo && CruzouParaBaixo(rapidoAnterior, rapidoShift2, lentoAnterior, lentoShift2);
+      else
+         return CruzouParaCima(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior) && 
+                CruzouParaCima(rapidoAnterior, rapidoShift2, lentoAnterior, lentoShift2);
+     }
+
+   return false;
+  }
+
+bool SinalSaidaCruzamento(const bool compra)
+  {
+   if(SaidaCruzamento != SINAL_SAIDA_CRUZAMENTO_OPOSTO)
+      return false;
+
+   double rapidoAtual = ObterValorFonte(SinalRapido, 0);
+   double rapidoAnterior = ObterValorFonte(SinalRapido, 1);
+
+   double lentoAtual = ObterValorFonte(SinalLento, 0);
+   double lentoAnterior = ObterValorFonte(SinalLento, 1);
+
+   if(rapidoAtual == 0.0 || rapidoAnterior == 0.0 || lentoAtual == 0.0 || lentoAnterior == 0.0)
+      return false;
+
+   if(compra)
+      return CruzouParaBaixo(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior);
+   else
+      return CruzouParaCima(rapidoAtual, rapidoAnterior, lentoAtual, lentoAnterior);
+  }
+
+//+------------------------------------------------------------------+
+
 bool CanalBandasHabilitado()
   {
    return (IndicadorCanalBandas != BANDAS_NAO_USAR && EntradaCanalBandas != ENTRADA_NAO_USAR);
@@ -1622,6 +1781,16 @@ void GerenciarSaidaCanal()
    const ulong ticket = (ulong)PositionGetInteger(POSITION_TICKET);
    if(!trade.PositionClose(ticket))
       PrintFormat("Falha ao fechar posicao por saida do canal. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
+  }
+
+void FecharPosicao()
+  {
+   if(!PositionSelect(_Symbol))
+      return;
+
+   const ulong ticket = (ulong)PositionGetInteger(POSITION_TICKET);
+   if(!trade.PositionClose(ticket))
+      PrintFormat("Falha ao fechar posicao. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
   }
 
 double CalcularDistanciaPreco(const ENUM_TIPO_CALCULO_DISTANCIAS tipoCalculo, const double distancia, const bool isCompra, const double precoReferencia)
@@ -1857,6 +2026,7 @@ int OnInit()
 //---
    const ENUM_TIMEFRAMES timeframe = ObterTimeframe(TempoGrafico);
    handleCanal = INVALID_HANDLE;
+   handleMA = INVALID_HANDLE;
 
    switch(IndicadorCanalBandas)
      {
@@ -1887,6 +2057,18 @@ int OnInit()
       PrintFormat("Falha ao criar handle do canal. Indicador=%d Erro=%d", (int)IndicadorCanalBandas, GetLastError());
       return(INIT_FAILED);
      }
+
+   // Inicializar handle de media movel para cruzamento se necessario
+   if(SinalRapido == FONTE_MEDIA_MOVEL || SinalLento == FONTE_MEDIA_MOVEL)
+     {
+      handleMA = iMA(_Symbol, timeframe, PeriodoIndicador1MediaMovel, DeslocamentoIndicador1MediaMovel, TipoMediaIndicador1MediaMovel, ModoPrecoIndicador1MediaMovel);
+      if(handleMA == INVALID_HANDLE)
+        {
+         PrintFormat("Falha ao criar handle da media movel. Erro=%d", GetLastError());
+         return(INIT_FAILED);
+        }
+     }
+
 //---
    return(INIT_SUCCEEDED);
   }
@@ -1900,6 +2082,12 @@ void OnDeinit(const int reason)
      {
       IndicatorRelease(handleCanal);
       handleCanal = INVALID_HANDLE;
+     }
+
+   if(handleMA != INVALID_HANDLE)
+     {
+      IndicatorRelease(handleMA);
+      handleMA = INVALID_HANDLE;
      }
 
   }
@@ -1923,10 +2111,40 @@ void OnTick()
      {
       GerenciarStopLoss();
       GerenciarSaidaCanal();
+
+      // Gerenciar saida por cruzamento oposto
+      POSITION_TYPE tipoPosicao = PositionGetInteger(POSITION_TYPE);
+      if(SinalSaidaCruzamento(tipoPosicao == POSITION_TYPE_BUY))
+         FecharPosicao();
+
       return;
      }
 
-   if(CanalBandasHabilitado())
+   // Modulo 18 - Cruzamento de Sinais
+   if(EntradaCruzamento != SINAL_ENTRADA_NAO_USAR)
+     {
+      if(OperarCompra == SIM && SinalCruzamentoCompra())
+        {
+         const datetime velaAtual = iTime(_Symbol, _Period, 0);
+         if(velaAtual != ultimaVelaEntrada)
+           {
+            ultimaVelaEntrada = velaAtual;
+            AbrirCompra();
+           }
+        }
+      else
+         if(OperarVenda == SIM && SinalCruzamentoVenda())
+           {
+            const datetime velaAtual = iTime(_Symbol, _Period, 0);
+            if(velaAtual != ultimaVelaEntrada)
+              {
+               ultimaVelaEntrada = velaAtual;
+               AbrirVenda();
+              }
+           }
+     }
+
+   else if(CanalBandasHabilitado())
      {
       if(OperarCompra == SIM && SinalCanalCompra())
         {
