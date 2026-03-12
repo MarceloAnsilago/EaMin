@@ -2113,7 +2113,7 @@ void OnTick()
       GerenciarSaidaCanal();
 
       // Gerenciar saida por cruzamento oposto
-      POSITION_TYPE tipoPosicao = PositionGetInteger(POSITION_TYPE);
+      ENUM_POSITION_TYPE tipoPosicao = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
       if(SinalSaidaCruzamento(tipoPosicao == POSITION_TYPE_BUY))
          FecharPosicao();
 
