@@ -1217,7 +1217,11 @@ struct DadosVela
    double close0;     // Fechamento da vela atual
    double close1;     // Fechamento da vela anterior
    double high0;      // Maxima da vela atual
+   double high1;      // Maxima da vela anterior
    double low0;       // Minima da vela atual
+   double low1;       // Minima da vela anterior
+   long volume0;      // Volume da vela atual
+   long volume1;      // Volume da vela anterior
   };
 
 DadosVela dados;
@@ -2117,6 +2121,7 @@ void OnDeinit(const int reason)
 void AtualizarDadosVela()
   {
    MqlRates rates[2];
+   ArraySetAsSeries(rates, true);
 
    if(CopyRates(_Symbol, ObterTimeframe(TempoGrafico), 0, 2, rates) < 2)
       return;
@@ -2125,9 +2130,13 @@ void AtualizarDadosVela()
    dados.close0 = rates[0].close;
    dados.high0 = rates[0].high;
    dados.low0 = rates[0].low;
+   dados.volume0 = rates[0].tick_volume;
 
    dados.open1 = rates[1].open;
    dados.close1 = rates[1].close;
+   dados.high1 = rates[1].high;
+   dados.low1 = rates[1].low;
+   dados.volume1 = rates[1].tick_volume;
   }
 
 void OnTick()
