@@ -2177,56 +2177,92 @@ void GerenciarStopLoss()
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//| MOTOR DE INICIALIZACAO CONDICIONAL - OTIMIZACAO DE CPU
+//+------------------------------------------------------------------+
+// Criar handles apenas para indicadores habilitados
+// Reduz consumo de CPU em otimizacoes massivas
+
+bool ModuloCanalHabilitado()
+  {
+   return (IndicadorCanalBandas != BANDAS_NAO_USAR);
+  }
+
+bool ModuloCruzamentoHabilitado()
+  {
+   return (EntradaCruzamento != SINAL_ENTRADA_NAO_USAR);
+  }
+
+bool ModuloOsciladorHabilitado()
+  {
+   return (IndicadorSobreCompraVenda != NAO_USAR && EntradaSobreCompraVenda != OSCILADOR_ENTRADA_NAO_USAR);
+  }
+
 int OnInit()
   {
 //---
    const ENUM_TIMEFRAMES timeframe = ObterTimeframe(TempoGrafico);
    handleCanal = INVALID_HANDLE;
    handleMA = INVALID_HANDLE;
+   handleRSI = INVALID_HANDLE;
+   handleStochastic = INVALID_HANDLE;
+   handleCCI = INVALID_HANDLE;
+   handleMFI = INVALID_HANDLE;
 
-   switch(IndicadorCanalBandas)
+   //+--+
+   //| MODULO 17 - CANAL DE BANDAS
+   //+--+
+   if(ModuloCanalHabilitado())
      {
-      case BANDAS_NAO_USAR:
-         break;
-      case BANDAS_BOLLINGER:
-         handleCanal = iBands(_Symbol, timeframe, PeriodoBandasBolinger, DeslocamentoBandasBolinger, DesviosBandasBolinger, ModoPrecoBandasBolinger);
-         break;
-      case BANDAS_ENVELOPES:
-         handleCanal = iCustom(_Symbol, timeframe, "Canais\\Envelopes", PeriodoEnvelopes, DeslocamentoEnvelopes, TipoMediaEnvelopes, ModoPrecoEnvelopes, DesviosEnvelopes);
-         break;
-      case BANDAS_KELTNER:
-         handleCanal = iCustom(_Symbol, timeframe, "Canais\\Keltner", PeriodoKeltner, DesviosKeltner);
-         break;
-      case BANDAS_DONCHIAN:
-         handleCanal = iCustom(_Symbol, timeframe, "Canais\\Dochian", PeriodoDochian);
-         break;
-      case BANDAS_ATR:
-         handleCanal = iCustom(_Symbol, timeframe, "Canais\\Canal-ATR", PeriodoCanalATR, DesviosCanalATR);
-         break;
-      default:
-         PrintFormat("Indicador de canal nao suportado: %d", (int)IndicadorCanalBandas);
-         return(INIT_FAILED);
-     }
-
-   if(IndicadorCanalBandas != BANDAS_NAO_USAR && handleCanal == INVALID_HANDLE)
-     {
-      PrintFormat("Falha ao criar handle do canal. Indicador=%d Erro=%d", (int)IndicadorCanalBandas, GetLastError());
-      return(INIT_FAILED);
-     }
-
-   // Inicializar handle de media movel para cruzamento se necessario
-   if(SinalRapido == FONTE_MEDIA_MOVEL || SinalLento == FONTE_MEDIA_MOVEL)
-     {
-      handleMA = iMA(_Symbol, timeframe, PeriodoIndicador1MediaMovel, DeslocamentoIndicador1MediaMovel, TipoMediaIndicador1MediaMovel, ModoPrecoIndicador1MediaMovel);
-      if(handleMA == INVALID_HANDLE)
+      switch(IndicadorCanalBandas)
         {
-         PrintFormat("Falha ao criar handle da media movel. Erro=%d", GetLastError());
+         case BANDAS_BOLLINGER:
+            handleCanal = iBands(_Symbol, timeframe, PeriodoBandasBolinger, DeslocamentoBandasBolinger, DesviosBandasBolinger, ModoPrecoBandasBolinger);
+            break;
+         case BANDAS_ENVELOPES:
+            handleCanal = iCustom(_Symbol, timeframe, "Canais\\Envelopes", PeriodoEnvelopes, DeslocamentoEnvelopes, TipoMediaEnvelopes, ModoPrecoEnvelopes, DesviosEnvelopes);
+            break;
+         case BANDAS_KELTNER:
+            handleCanal = iCustom(_Symbol, timeframe, "Canais\\Keltner", PeriodoKeltner, DesviosKeltner);
+            break;
+         case BANDAS_DONCHIAN:
+            handleCanal = iCustom(_Symbol, timeframe, "Canais\\Dochian", PeriodoDochian);
+            break;
+         case BANDAS_ATR:
+            handleCanal = iCustom(_Symbol, timeframe, "Canais\\Canal-ATR", PeriodoCanalATR, DesviosCanalATR);
+            break;
+         default:
+            PrintFormat("Indicador de canal nao suportado: %d", (int)IndicadorCanalBandas);
+            return(INIT_FAILED);
+        }
+
+      if(handleCanal == INVALID_HANDLE)
+        {
+         PrintFormat("Falha ao criar handle do canal. Indicador=%d Erro=%d", (int)IndicadorCanalBandas, GetLastError());
          return(INIT_FAILED);
         }
      }
 
-   // Inicializar handles de osciladores
-   if(IndicadorSobreCompraVenda != NAO_USAR)
+   //+--+
+   //| MODULO 18 - CRUZAMENTO DE SINAIS
+   //+--+
+   if(ModuloCruzamentoHabilitado())
+     {
+      if(SinalRapido == FONTE_MEDIA_MOVEL || SinalLento == FONTE_MEDIA_MOVEL)
+        {
+         handleMA = iMA(_Symbol, timeframe, PeriodoIndicador1MediaMovel, DeslocamentoIndicador1MediaMovel, TipoMediaIndicador1MediaMovel, ModoPrecoIndicador1MediaMovel);
+         if(handleMA == INVALID_HANDLE)
+           {
+            PrintFormat("Falha ao criar handle da media movel. Erro=%d", GetLastError());
+            return(INIT_FAILED);
+           }
+        }
+     }
+
+   //+--+
+   //| MODULO 19 - OSCILADORES
+   //+--+
+   if(ModuloOsciladorHabilitado())
      {
       switch(IndicadorSobreCompraVenda)
         {
