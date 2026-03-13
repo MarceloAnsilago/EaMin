@@ -1979,7 +1979,7 @@ int ObterBufferCanalMotorRegras(const ENUM_CONFIGURAR_INDICADORES configuracao)
    switch(configuracao)
      {
       case CONFIG_IND_BANDAS_BOLINGER:
-         switch(EntradaIndicador1)
+         switch(SinalIndicador1)
            {
             case BOLINGER_SUPERIOR:
                return 0;
@@ -2299,7 +2299,7 @@ bool PreencherRegraMotorRegras(const bool compra,
    return true;
   }
 
-bool ObterValorLadoRegra(RegraIndicador regra, const bool primeiraFonte, const int deslocamentoExtra, double &valor)
+bool ObterValorLadoRegra(const RegraIndicador &regra, const bool primeiraFonte, const int deslocamentoExtra, double &valor)
   {
    const int shift = (primeiraFonte ? regra.shift1 : regra.shift2) + deslocamentoExtra;
 
@@ -2329,7 +2329,7 @@ bool ObterValorLadoRegra(RegraIndicador regra, const bool primeiraFonte, const i
    return ObterValorFonteMotorRegras(regra.fonte2, shift, regra.valor2, valor);
   }
 
-bool AvaliarCondicao(RegraIndicador regra, int shift)
+bool AvaliarCondicao(const RegraIndicador &regra, const int shift)
   {
    double valor1 = 0.0;
    double valor2 = 0.0;
@@ -3179,7 +3179,8 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void AtualizarDadosVela()
   {
-   MqlRates rates[2];
+   MqlRates rates[];
+   ArrayResize(rates, 2);
    ArraySetAsSeries(rates, true);
 
    if(CopyRates(_Symbol, ObterTimeframe(TempoGrafico), 0, 2, rates) < 2)
