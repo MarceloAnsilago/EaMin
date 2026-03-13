@@ -195,11 +195,21 @@ enum ENUM_CANAL_BANDAS_SAIDA
 enum ENUM_SINAL_FONTE
   {
    FONTE_NAO_USAR = 0,
+   FONTE_VALOR_FIXO = -20,
+   FONTE_PRECO_ATUAL = -21,
    FONTE_FECHAMENTO_VELA = -2,
    FONTE_ABERTURA_VELA = -3,
    FONTE_MAXIMA_VELA = -4,
    FONTE_MINIMA_VELA = -5,
    FONTE_MEDIA_MOVEL = 1,
+   FONTE_CANAL_SUPERIOR = 101,
+   FONTE_CANAL_CENTRAL = 102,
+   FONTE_CANAL_INFERIOR = 103,
+   FONTE_RSI = 104,
+   FONTE_ESTOCASTICO_PRINCIPAL = 105,
+   FONTE_ESTOCASTICO_SINAL = 106,
+   FONTE_CCI = 107,
+   FONTE_MFI = 108,
    FONTE_VIDYA = 17,
    FONTE_DEMA = 18,
    FONTE_TEMA = 19,
@@ -607,6 +617,22 @@ enum ENUM_OPCAO_COMPARACAO
    COMPARAR_CRUZAR_FECHAR_ABAIXO_DE = 9          // Cruzar&fechar abaixo de
   };
 
+enum ENUM_OPERADOR_COMPARACAO
+  {
+   OP_MAIOR = 0,
+   OP_MENOR = 1,
+   OP_MAIOR_IGUAL = 2,
+   OP_MENOR_IGUAL = 3,
+   OP_IGUAL = 4,
+   OP_DIFERENTE = 5
+  };
+
+enum ENUM_OPERADOR_LOGICO
+  {
+   LOGICO_AND = 0,
+   LOGICO_OR = 1
+  };
+
 input group "1.Nome";
 input string Nome = "EaMin";
 
@@ -873,6 +899,7 @@ input ENUM_MENU_CONDICAO Menu1Indicador1 = MENU_NAO_USAR;                       
 input ENUM_SIMPLES_VELA Simples1Indicador1 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 input ENUM_OPCAO_COMPARACAO OpcaoIndicador1 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2Indicador1 = MENU_NAO_USAR;                             // Fonte B / Indicador
+input double ValorComparacaoIndicador1 = 0.0;                                         // Valor fixo da comparacao
 input ENUM_SIMPLES_VELA Simples2Indicador1 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 
 input group "20.b.Indicador 2 - Compra";
@@ -882,6 +909,7 @@ input ENUM_MENU_CONDICAO Menu1Indicador2 = MENU_NAO_USAR;                       
 input ENUM_SIMPLES_VELA Simples1Indicador2 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 input ENUM_OPCAO_COMPARACAO OpcaoIndicador2 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2Indicador2 = MENU_NAO_USAR;                             // Fonte B / Indicador
+input double ValorComparacaoIndicador2 = 0.0;                                         // Valor fixo da comparacao
 input ENUM_SIMPLES_VELA Simples2Indicador2 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 
 input group "20.c.Indicador 3 - Compra";
@@ -891,6 +919,7 @@ input ENUM_MENU_CONDICAO Menu1Indicador3 = MENU_NAO_USAR;                       
 input ENUM_SIMPLES_VELA Simples1Indicador3 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 input ENUM_OPCAO_COMPARACAO OpcaoIndicador3 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2Indicador3 = MENU_NAO_USAR;                             // Fonte B / Indicador
+input double ValorComparacaoIndicador3 = 0.0;                                         // Valor fixo da comparacao
 input ENUM_SIMPLES_VELA Simples2Indicador3 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 
 input group "20.d.Indicador 4 - Compra";
@@ -900,6 +929,7 @@ input ENUM_MENU_CONDICAO Menu1Indicador4 = MENU_NAO_USAR;                       
 input ENUM_SIMPLES_VELA Simples1Indicador4 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 input ENUM_OPCAO_COMPARACAO OpcaoIndicador4 = COMPARAR_MAIOR_QUE;                     // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2Indicador4 = MENU_NAO_USAR;                             // Fonte B / Indicador
+input double ValorComparacaoIndicador4 = 0.0;                                         // Valor fixo da comparacao
 input ENUM_SIMPLES_VELA Simples2Indicador4 = SIMPLES_VELA_ATUAL;                      // Ativacao da regra
 
 input group "20.e.Indicador 1 - Venda";
@@ -909,6 +939,7 @@ input ENUM_MENU_CONDICAO Menu1IndicadorVenda1 = MENU_NAO_USAR;                  
 input ENUM_SIMPLES_VELA Simples1IndicadorVenda1 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 input ENUM_OPCAO_COMPARACAO OpcaoIndicadorVenda1 = COMPARAR_MENOR_QUE;                       // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2IndicadorVenda1 = MENU_NAO_USAR;                              // Fonte B / Indicador
+input double ValorComparacaoIndicadorVenda1 = 0.0;                                           // Valor fixo da comparacao
 input ENUM_SIMPLES_VELA Simples2IndicadorVenda1 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 
 input group "20.f.Indicador 2 - Venda";
@@ -918,6 +949,7 @@ input ENUM_MENU_CONDICAO Menu1IndicadorVenda2 = MENU_NAO_USAR;                  
 input ENUM_SIMPLES_VELA Simples1IndicadorVenda2 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 input ENUM_OPCAO_COMPARACAO OpcaoIndicadorVenda2 = COMPARAR_MENOR_QUE;                       // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2IndicadorVenda2 = MENU_NAO_USAR;                              // Fonte B / Indicador
+input double ValorComparacaoIndicadorVenda2 = 0.0;                                           // Valor fixo da comparacao
 input ENUM_SIMPLES_VELA Simples2IndicadorVenda2 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 
 input group "20.g.Indicador 3 - Venda";
@@ -927,6 +959,7 @@ input ENUM_MENU_CONDICAO Menu1IndicadorVenda3 = MENU_NAO_USAR;                  
 input ENUM_SIMPLES_VELA Simples1IndicadorVenda3 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 input ENUM_OPCAO_COMPARACAO OpcaoIndicadorVenda3 = COMPARAR_MENOR_QUE;                       // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2IndicadorVenda3 = MENU_NAO_USAR;                              // Fonte B / Indicador
+input double ValorComparacaoIndicadorVenda3 = 0.0;                                           // Valor fixo da comparacao
 input ENUM_SIMPLES_VELA Simples2IndicadorVenda3 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 
 input group "20.h.Indicador 4 - Venda";
@@ -936,6 +969,7 @@ input ENUM_MENU_CONDICAO Menu1IndicadorVenda4 = MENU_NAO_USAR;                  
 input ENUM_SIMPLES_VELA Simples1IndicadorVenda4 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 input ENUM_OPCAO_COMPARACAO OpcaoIndicadorVenda4 = COMPARAR_MENOR_QUE;                       // Operador de comparacao
 input ENUM_MENU_CONDICAO Menu2IndicadorVenda4 = MENU_NAO_USAR;                              // Fonte B / Indicador
+input double ValorComparacaoIndicadorVenda4 = 0.0;                                           // Valor fixo da comparacao
 input ENUM_SIMPLES_VELA Simples2IndicadorVenda4 = SIMPLES_VELA_ATUAL;                       // Ativacao da regra
 
 input group "20.1.Bandas de Bolinger";
@@ -1210,6 +1244,35 @@ int handleRSI = INVALID_HANDLE;
 int handleStochastic = INVALID_HANDLE;
 int handleCCI = INVALID_HANDLE;
 int handleMFI = INVALID_HANDLE;
+int handleRegraBandas = INVALID_HANDLE;
+int handleRegraEnvelopes = INVALID_HANDLE;
+int handleRegraKeltner = INVALID_HANDLE;
+int handleRegraDochian = INVALID_HANDLE;
+int handleRegraCanalATR = INVALID_HANDLE;
+int handleRegraMA = INVALID_HANDLE;
+int handleRegraRSI = INVALID_HANDLE;
+int handleRegraStochastic = INVALID_HANDLE;
+int handleRegraCCI = INVALID_HANDLE;
+int handleRegraMFI = INVALID_HANDLE;
+
+struct RegraIndicador
+  {
+   bool compra;
+   ENUM_SINAL_FONTE fonte1;
+   ENUM_OPERADOR_COMPARACAO operador;
+   ENUM_OPCAO_COMPARACAO opcaoOriginal;
+   ENUM_SINAL_FONTE fonte2;
+   int shift1;
+   int shift2;
+   int slotIndicador1;
+   bool usarIndicadorConfigurado1;
+   int slotIndicador2;
+   bool usarIndicadorConfigurado2;
+   double valor1;
+   bool usarValor1Fixo;
+   double valor2;
+   bool usarValor2Fixo;
+  };
 
 //+------------------------------------------------------------------+
 //| CACHE DE DADOS DA VELA - OTIMIZACAO DE PERFORMANCE
@@ -1749,6 +1812,637 @@ bool SinalOsciladorVenda()
   }
 
 //+------------------------------------------------------------------+
+//| MODULO 20 - MOTOR DE REGRAS
+//+------------------------------------------------------------------+
+
+int ObterShiftSimplesVela(const ENUM_SIMPLES_VELA simplesVela)
+  {
+   switch(simplesVela)
+     {
+      case SIMPLES_VELA_ATUAL:
+         return 0;
+      case SIMPLES_VELA_ANTERIOR:
+         return 1;
+      case SIMPLES_VELA_PENULTIMA:
+         return 2;
+      case SIMPLES_VELA_ANTI_PENULTIMA:
+         return 3;
+      default:
+         return 0;
+     }
+  }
+
+ENUM_OPERADOR_COMPARACAO ConverterOperadorComparacao(const ENUM_OPCAO_COMPARACAO opcao)
+  {
+   switch(opcao)
+     {
+      case COMPARAR_MENOR_QUE:
+         return OP_MENOR;
+      case COMPARAR_MAIOR_IGUAL_QUE:
+         return OP_MAIOR_IGUAL;
+      case COMPARAR_MENOR_IGUAL_QUE:
+         return OP_MENOR_IGUAL;
+      case COMPARAR_IGUAL_QUE:
+         return OP_IGUAL;
+      case COMPARAR_DIFERENTE_DE:
+         return OP_DIFERENTE;
+      case COMPARAR_MAIOR_QUE:
+      default:
+         return OP_MAIOR;
+     }
+  }
+
+ENUM_OPERADOR_LOGICO ConverterOperadorLogico(const ENUM_COMANDO_CONDICAO comando)
+  {
+   switch(comando)
+     {
+      case COMANDO_OU:
+      case COMANDO_OU_SE:
+      case COMANDO_OU_TAMBEM:
+         return LOGICO_OR;
+      case COMANDO_SE:
+      case COMANDO_E:
+      case COMANDO_E_SE:
+      case COMANDO_E_TAMBEM:
+      default:
+         return LOGICO_AND;
+     }
+  }
+
+bool MenuUsaSlotIndicador(const ENUM_MENU_CONDICAO menu, const int slot)
+  {
+   switch(slot)
+     {
+      case 1:
+         return (menu == MENU_INDICADOR_1);
+      case 2:
+         return (menu == MENU_INDICADOR_2);
+      case 3:
+         return (menu == MENU_INDICADOR_3);
+      case 4:
+         return (menu == MENU_INDICADOR_4);
+      default:
+         return false;
+     }
+  }
+
+bool CondicaoMotorRegrasAtiva(const ENUM_MENU_CONDICAO menu1, const ENUM_MENU_CONDICAO menu2)
+  {
+   return (menu1 != MENU_NAO_USAR && menu2 != MENU_NAO_USAR);
+  }
+
+bool ModuloMotorRegrasHabilitado()
+  {
+   if(CondicaoMotorRegrasAtiva(Menu1Indicador1, Menu2Indicador1))
+      return true;
+   if(CondicaoMotorRegrasAtiva(Menu1Indicador2, Menu2Indicador2))
+      return true;
+   if(CondicaoMotorRegrasAtiva(Menu1Indicador3, Menu2Indicador3))
+      return true;
+   if(CondicaoMotorRegrasAtiva(Menu1Indicador4, Menu2Indicador4))
+      return true;
+   if(CondicaoMotorRegrasAtiva(Menu1IndicadorVenda1, Menu2IndicadorVenda1))
+      return true;
+   if(CondicaoMotorRegrasAtiva(Menu1IndicadorVenda2, Menu2IndicadorVenda2))
+      return true;
+   if(CondicaoMotorRegrasAtiva(Menu1IndicadorVenda3, Menu2IndicadorVenda3))
+      return true;
+   if(CondicaoMotorRegrasAtiva(Menu1IndicadorVenda4, Menu2IndicadorVenda4))
+      return true;
+
+   return false;
+  }
+
+bool SlotMotorRegrasReferenciado(const bool compra, const int slot)
+  {
+   if(compra)
+     {
+      if(MenuUsaSlotIndicador(Menu1Indicador1, slot) || MenuUsaSlotIndicador(Menu2Indicador1, slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1Indicador2, slot) || MenuUsaSlotIndicador(Menu2Indicador2, slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1Indicador3, slot) || MenuUsaSlotIndicador(Menu2Indicador3, slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1Indicador4, slot) || MenuUsaSlotIndicador(Menu2Indicador4, slot))
+         return true;
+     }
+   else
+     {
+      if(MenuUsaSlotIndicador(Menu1IndicadorVenda1, slot) || MenuUsaSlotIndicador(Menu2IndicadorVenda1, slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1IndicadorVenda2, slot) || MenuUsaSlotIndicador(Menu2IndicadorVenda2, slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1IndicadorVenda3, slot) || MenuUsaSlotIndicador(Menu2IndicadorVenda3, slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1IndicadorVenda4, slot) || MenuUsaSlotIndicador(Menu2IndicadorVenda4, slot))
+         return true;
+     }
+
+   return false;
+  }
+
+ENUM_CONFIGURAR_INDICADORES ObterConfiguracaoIndicadorMotorRegras(const bool compra, const int slot)
+  {
+   switch(slot)
+     {
+      case 1:
+         return compra ? ConfigurarIndicador1 : ConfigurarIndicadorVenda1;
+      case 2:
+         return compra ? ConfigurarIndicador2 : ConfigurarIndicadorVenda2;
+      case 3:
+         return compra ? ConfigurarIndicador3 : ConfigurarIndicadorVenda3;
+      case 4:
+         return compra ? ConfigurarIndicador4 : ConfigurarIndicadorVenda4;
+      default:
+         return CONFIG_IND_NAO_USAR;
+     }
+  }
+
+bool CopiarValorBuffer(const int handle, const int bufferIndex, const int shift, double &valor)
+  {
+   if(handle == INVALID_HANDLE)
+      return false;
+
+   double dadosBuffer[];
+   ArrayResize(dadosBuffer, 1);
+   ArraySetAsSeries(dadosBuffer, true);
+
+   if(CopyBuffer(handle, bufferIndex, shift, 1, dadosBuffer) < 1)
+      return false;
+
+   valor = dadosBuffer[0];
+   return true;
+  }
+
+int ObterBufferCanalMotorRegras(const ENUM_CONFIGURAR_INDICADORES configuracao)
+  {
+   switch(configuracao)
+     {
+      case CONFIG_IND_BANDAS_BOLINGER:
+         switch(EntradaIndicador1)
+           {
+            case BOLINGER_SUPERIOR:
+               return 0;
+            case BOLINGER_INFERIOR:
+               return 2;
+            case BOLINGER_CENTRAL:
+            default:
+               return 1;
+           }
+
+      case CONFIG_IND_ENVELOPES:
+         switch(EntradaIndicador3)
+           {
+            case ENVELOPE_SUPERIOR:
+               return 0;
+            case ENVELOPE_INFERIOR:
+            default:
+               return 2;
+           }
+
+      case CONFIG_IND_KELTNER:
+         switch(EntradaIndicador1Keltner)
+           {
+            case KELTNER_SUPERIOR:
+               return 0;
+            case KELTNER_INFERIOR:
+               return 2;
+            case KELTNER_CENTRAL:
+            default:
+               return 1;
+           }
+
+      case CONFIG_IND_DOCHIAN:
+         switch(EntradaIndicador1Dochian)
+           {
+            case DOCHIAN_SUPERIOR:
+               return 0;
+            case DOCHIAN_INFERIOR:
+               return 2;
+            case DOCHIAN_CENTRAL:
+            default:
+               return 1;
+           }
+
+      case CONFIG_IND_CANAL_ATR:
+         switch(EntradaIndicador1CanalATR)
+           {
+            case CANAL_ATR_SUPERIOR:
+               return 0;
+            case CANAL_ATR_INFERIOR:
+               return 2;
+            case CANAL_ATR_CENTRAL:
+            default:
+               return 1;
+           }
+
+      default:
+         return 0;
+     }
+  }
+
+bool ObterValorFonteMotorRegras(const ENUM_SINAL_FONTE fonte, const int shift, const double valorFixo, double &valor)
+  {
+   valor = 0.0;
+
+   switch(fonte)
+     {
+      case FONTE_VALOR_FIXO:
+         valor = valorFixo;
+         return true;
+
+      case FONTE_PRECO_ATUAL:
+        {
+         if(shift == 0)
+           {
+            MqlTick tick;
+            if(!SymbolInfoTick(_Symbol, tick))
+               return false;
+
+            valor = tick.bid;
+            return true;
+           }
+
+         valor = iClose(_Symbol, ObterTimeframe(TempoGrafico), shift);
+         return true;
+        }
+
+      case FONTE_FECHAMENTO_VELA:
+      case FONTE_ABERTURA_VELA:
+      case FONTE_MAXIMA_VELA:
+      case FONTE_MINIMA_VELA:
+         valor = ObterValorFonte(fonte, shift);
+         return true;
+
+      case FONTE_MEDIA_MOVEL:
+         if(handleRegraMA != INVALID_HANDLE)
+            return CopiarValorBuffer(handleRegraMA, 0, shift, valor);
+         valor = ObterValorFonte(fonte, shift);
+         return (handleMA != INVALID_HANDLE);
+
+      case FONTE_RSI:
+         return CopiarValorBuffer(handleRegraRSI, 0, shift, valor);
+
+      case FONTE_ESTOCASTICO_PRINCIPAL:
+         return CopiarValorBuffer(handleRegraStochastic, 0, shift, valor);
+
+      case FONTE_ESTOCASTICO_SINAL:
+         return CopiarValorBuffer(handleRegraStochastic, 1, shift, valor);
+
+      case FONTE_CCI:
+         return CopiarValorBuffer(handleRegraCCI, 0, shift, valor);
+
+      case FONTE_MFI:
+         return CopiarValorBuffer(handleRegraMFI, 0, shift, valor);
+
+      default:
+         return false;
+     }
+  }
+
+bool ObterValorIndicadorMotorRegrasPorSlot(const bool compra, const int slot, const int shift, double &valor)
+  {
+   const ENUM_CONFIGURAR_INDICADORES configuracao = ObterConfiguracaoIndicadorMotorRegras(compra, slot);
+
+   switch(configuracao)
+     {
+      case CONFIG_IND_MEDIA_MOVEL:
+         return CopiarValorBuffer(handleRegraMA, 0, shift, valor);
+
+      case CONFIG_IND_BANDAS_BOLINGER:
+         return CopiarValorBuffer(handleRegraBandas, ObterBufferCanalMotorRegras(configuracao), shift, valor);
+
+      case CONFIG_IND_ENVELOPES:
+         return CopiarValorBuffer(handleRegraEnvelopes, ObterBufferCanalMotorRegras(configuracao), shift, valor);
+
+      case CONFIG_IND_KELTNER:
+         return CopiarValorBuffer(handleRegraKeltner, ObterBufferCanalMotorRegras(configuracao), shift, valor);
+
+      case CONFIG_IND_DOCHIAN:
+         return CopiarValorBuffer(handleRegraDochian, ObterBufferCanalMotorRegras(configuracao), shift, valor);
+
+      case CONFIG_IND_CANAL_ATR:
+         return CopiarValorBuffer(handleRegraCanalATR, ObterBufferCanalMotorRegras(configuracao), shift, valor);
+
+      case CONFIG_IND_RSI:
+         return CopiarValorBuffer(handleRegraRSI, 0, shift, valor);
+
+      case CONFIG_IND_ESTOCASTICO:
+        {
+         const int buffer = (EntradaIndicador4 == ESTOCASTICO_SINAL) ? 1 : 0;
+         return CopiarValorBuffer(handleRegraStochastic, buffer, shift, valor);
+        }
+
+      case CONFIG_IND_CCI:
+         return CopiarValorBuffer(handleRegraCCI, 0, shift, valor);
+
+      case CONFIG_IND_MFI:
+         return CopiarValorBuffer(handleRegraMFI, 0, shift, valor);
+
+      default:
+         return false;
+     }
+  }
+
+bool ResolverMenuParaRegra(const ENUM_MENU_CONDICAO menu,
+                           ENUM_SINAL_FONTE &fonte,
+                           bool &usarValorFixo,
+                           double &valorFixo,
+                           bool &usarIndicadorConfigurado,
+                           int &slotIndicador)
+  {
+   usarValorFixo = false;
+   usarIndicadorConfigurado = false;
+   slotIndicador = 0;
+   fonte = FONTE_NAO_USAR;
+
+   switch(menu)
+     {
+      case MENU_VALOR_ABSOLUTO:
+         usarValorFixo = true;
+         fonte = FONTE_VALOR_FIXO;
+         return true;
+
+      case MENU_PRECO_ATUAL:
+         fonte = FONTE_PRECO_ATUAL;
+         return true;
+
+      case MENU_FECHAMENTO_VELA:
+         fonte = FONTE_FECHAMENTO_VELA;
+         return true;
+
+      case MENU_ABERTURA_VELA:
+         fonte = FONTE_ABERTURA_VELA;
+         return true;
+
+      case MENU_MAXIMA_VELA:
+         fonte = FONTE_MAXIMA_VELA;
+         return true;
+
+      case MENU_MINIMA_VELA:
+         fonte = FONTE_MINIMA_VELA;
+         return true;
+
+      case MENU_INDICADOR_1:
+         usarIndicadorConfigurado = true;
+         slotIndicador = 1;
+         return true;
+
+      case MENU_INDICADOR_2:
+         usarIndicadorConfigurado = true;
+         slotIndicador = 2;
+         return true;
+
+      case MENU_INDICADOR_3:
+         usarIndicadorConfigurado = true;
+         slotIndicador = 3;
+         return true;
+
+      case MENU_INDICADOR_4:
+         usarIndicadorConfigurado = true;
+         slotIndicador = 4;
+         return true;
+
+      default:
+         valorFixo = 0.0;
+         return false;
+     }
+  }
+
+bool PreencherRegraMotorRegras(const bool compra,
+                               const int indice,
+                               RegraIndicador &regra,
+                               ENUM_OPERADOR_LOGICO &operadorLogico,
+                               bool &ativa)
+  {
+   ENUM_MENU_CONDICAO menu1 = MENU_NAO_USAR;
+   ENUM_MENU_CONDICAO menu2 = MENU_NAO_USAR;
+   ENUM_SIMPLES_VELA simples1 = SIMPLES_VELA_ATUAL;
+   ENUM_SIMPLES_VELA simples2 = SIMPLES_VELA_ATUAL;
+   ENUM_OPCAO_COMPARACAO opcao = COMPARAR_MAIOR_QUE;
+   ENUM_COMANDO_CONDICAO comando = COMANDO_SE;
+   double valorComparacao = 0.0;
+
+   switch(indice)
+     {
+      case 1:
+         menu1 = compra ? Menu1Indicador1 : Menu1IndicadorVenda1;
+         simples1 = compra ? Simples1Indicador1 : Simples1IndicadorVenda1;
+         opcao = compra ? OpcaoIndicador1 : OpcaoIndicadorVenda1;
+         menu2 = compra ? Menu2Indicador1 : Menu2IndicadorVenda1;
+         simples2 = compra ? Simples2Indicador1 : Simples2IndicadorVenda1;
+         comando = compra ? ComandoIndicador1 : ComandoIndicadorVenda1;
+         valorComparacao = compra ? ValorComparacaoIndicador1 : ValorComparacaoIndicadorVenda1;
+         break;
+
+      case 2:
+         menu1 = compra ? Menu1Indicador2 : Menu1IndicadorVenda2;
+         simples1 = compra ? Simples1Indicador2 : Simples1IndicadorVenda2;
+         opcao = compra ? OpcaoIndicador2 : OpcaoIndicadorVenda2;
+         menu2 = compra ? Menu2Indicador2 : Menu2IndicadorVenda2;
+         simples2 = compra ? Simples2Indicador2 : Simples2IndicadorVenda2;
+         comando = compra ? ComandoIndicador2 : ComandoIndicadorVenda2;
+         valorComparacao = compra ? ValorComparacaoIndicador2 : ValorComparacaoIndicadorVenda2;
+         break;
+
+      case 3:
+         menu1 = compra ? Menu1Indicador3 : Menu1IndicadorVenda3;
+         simples1 = compra ? Simples1Indicador3 : Simples1IndicadorVenda3;
+         opcao = compra ? OpcaoIndicador3 : OpcaoIndicadorVenda3;
+         menu2 = compra ? Menu2Indicador3 : Menu2IndicadorVenda3;
+         simples2 = compra ? Simples2Indicador3 : Simples2IndicadorVenda3;
+         comando = compra ? ComandoIndicador3 : ComandoIndicadorVenda3;
+         valorComparacao = compra ? ValorComparacaoIndicador3 : ValorComparacaoIndicadorVenda3;
+         break;
+
+      case 4:
+         menu1 = compra ? Menu1Indicador4 : Menu1IndicadorVenda4;
+         simples1 = compra ? Simples1Indicador4 : Simples1IndicadorVenda4;
+         opcao = compra ? OpcaoIndicador4 : OpcaoIndicadorVenda4;
+         menu2 = compra ? Menu2Indicador4 : Menu2IndicadorVenda4;
+         simples2 = compra ? Simples2Indicador4 : Simples2IndicadorVenda4;
+         comando = compra ? ComandoIndicador4 : ComandoIndicadorVenda4;
+         valorComparacao = compra ? ValorComparacaoIndicador4 : ValorComparacaoIndicadorVenda4;
+         break;
+
+      default:
+         ativa = false;
+         return false;
+     }
+
+   ativa = CondicaoMotorRegrasAtiva(menu1, menu2);
+   operadorLogico = ConverterOperadorLogico(comando);
+
+   if(!ativa)
+      return true;
+
+   regra.compra = compra;
+   regra.operador = ConverterOperadorComparacao(opcao);
+   regra.opcaoOriginal = opcao;
+   regra.shift1 = ObterShiftSimplesVela(simples1);
+   regra.shift2 = ObterShiftSimplesVela(simples2);
+   regra.slotIndicador1 = 0;
+   regra.usarIndicadorConfigurado1 = false;
+   regra.slotIndicador2 = 0;
+   regra.usarIndicadorConfigurado2 = false;
+   regra.valor1 = valorComparacao;
+   regra.usarValor1Fixo = false;
+   regra.valor2 = valorComparacao;
+   regra.usarValor2Fixo = false;
+
+   if(!ResolverMenuParaRegra(menu1, regra.fonte1, regra.usarValor1Fixo, regra.valor1, regra.usarIndicadorConfigurado1, regra.slotIndicador1))
+      return false;
+
+   if(!ResolverMenuParaRegra(menu2, regra.fonte2, regra.usarValor2Fixo, regra.valor2, regra.usarIndicadorConfigurado2, regra.slotIndicador2))
+      return false;
+
+   return true;
+  }
+
+bool ObterValorLadoRegra(RegraIndicador regra, const bool primeiraFonte, const int deslocamentoExtra, double &valor)
+  {
+   const int shift = (primeiraFonte ? regra.shift1 : regra.shift2) + deslocamentoExtra;
+
+   if(primeiraFonte)
+     {
+      if(regra.usarValor1Fixo)
+        {
+         valor = regra.valor1;
+         return true;
+        }
+
+      if(regra.usarIndicadorConfigurado1)
+         return ObterValorIndicadorMotorRegrasPorSlot(regra.compra, regra.slotIndicador1, shift, valor);
+
+      return ObterValorFonteMotorRegras(regra.fonte1, shift, regra.valor1, valor);
+     }
+
+   if(regra.usarValor2Fixo)
+     {
+      valor = regra.valor2;
+      return true;
+     }
+
+   if(regra.usarIndicadorConfigurado2)
+      return ObterValorIndicadorMotorRegrasPorSlot(regra.compra, regra.slotIndicador2, shift, valor);
+
+   return ObterValorFonteMotorRegras(regra.fonte2, shift, regra.valor2, valor);
+  }
+
+bool AvaliarCondicao(RegraIndicador regra, int shift)
+  {
+   double valor1 = 0.0;
+   double valor2 = 0.0;
+
+   if(!ObterValorLadoRegra(regra, true, shift, valor1))
+      return false;
+
+   if(!ObterValorLadoRegra(regra, false, shift, valor2))
+      return false;
+
+   const double tolerancia = MathMax(_Point, 0.0000001);
+
+   if(regra.opcaoOriginal == COMPARAR_CRUZAR_CIMA_DE || regra.opcaoOriginal == COMPARAR_CRUZAR_BAIXO_DE ||
+      regra.opcaoOriginal == COMPARAR_CRUZAR_FECHAR_ACIMA_DE || regra.opcaoOriginal == COMPARAR_CRUZAR_FECHAR_ABAIXO_DE)
+     {
+      double valorAnterior1 = 0.0;
+      double valorAnterior2 = 0.0;
+
+      if(!ObterValorLadoRegra(regra, true, shift + 1, valorAnterior1))
+         return false;
+
+      if(!ObterValorLadoRegra(regra, false, shift + 1, valorAnterior2))
+         return false;
+
+      if(regra.opcaoOriginal == COMPARAR_CRUZAR_CIMA_DE || regra.opcaoOriginal == COMPARAR_CRUZAR_FECHAR_ACIMA_DE)
+         return (valorAnterior1 < valorAnterior2 && valor1 > valor2);
+
+      return (valorAnterior1 > valorAnterior2 && valor1 < valor2);
+     }
+
+   switch(regra.operador)
+     {
+      case OP_MAIOR:
+         return (valor1 > valor2);
+      case OP_MENOR:
+         return (valor1 < valor2);
+      case OP_MAIOR_IGUAL:
+         return (valor1 > valor2 || MathAbs(valor1 - valor2) <= tolerancia);
+      case OP_MENOR_IGUAL:
+         return (valor1 < valor2 || MathAbs(valor1 - valor2) <= tolerancia);
+      case OP_IGUAL:
+         return (MathAbs(valor1 - valor2) <= tolerancia);
+      case OP_DIFERENTE:
+         return (MathAbs(valor1 - valor2) > tolerancia);
+      default:
+         return false;
+     }
+  }
+
+bool AvaliarMotorRegras(const bool compra)
+  {
+   RegraIndicador regras[4];
+   ENUM_OPERADOR_LOGICO operadores[4];
+   bool ativas[4];
+   bool temCondicaoAtiva = false;
+   bool resultado = false;
+
+   for(int i = 0; i < 4; i++)
+      ativas[i] = false;
+
+   for(int i = 0; i < 4; i++)
+     {
+      if(!PreencherRegraMotorRegras(compra, i + 1, regras[i], operadores[i], ativas[i]))
+         return false;
+
+      if(ativas[i])
+         temCondicaoAtiva = true;
+     }
+
+   if(!temCondicaoAtiva)
+      return false;
+
+   bool temResultado = false;
+
+   for(int i = 0; i < 4; i++)
+     {
+      if(!ativas[i])
+         continue;
+
+      const bool condicaoAtual = AvaliarCondicao(regras[i], 0);
+
+      if(!temResultado)
+        {
+         resultado = condicaoAtual;
+         temResultado = true;
+         continue;
+        }
+
+      if(operadores[i] == LOGICO_AND)
+         resultado = resultado && condicaoAtual;
+      else
+         resultado = resultado || condicaoAtual;
+     }
+
+   return resultado;
+  }
+
+bool AvaliarMotorRegras()
+  {
+   return AvaliarMotorRegras(true);
+  }
+
+bool SinalMotorRegrasCompra()
+  {
+   return AvaliarMotorRegras(true);
+  }
+
+bool SinalMotorRegrasVenda()
+  {
+   return AvaliarMotorRegras(false);
+  }
+
+//+------------------------------------------------------------------+
 
 bool CanalBandasHabilitado()
   {
@@ -2198,6 +2892,92 @@ bool ModuloOsciladorHabilitado()
    return (IndicadorSobreCompraVenda != NAO_USAR && EntradaSobreCompraVenda != OSCILADOR_ENTRADA_NAO_USAR);
   }
 
+bool InicializarHandleMotorRegras(const ENUM_CONFIGURAR_INDICADORES configuracao, const ENUM_TIMEFRAMES timeframe)
+  {
+   switch(configuracao)
+     {
+      case CONFIG_IND_NAO_USAR:
+         return true;
+
+      case CONFIG_IND_MEDIA_MOVEL:
+         if(handleRegraMA == INVALID_HANDLE)
+            handleRegraMA = iMA(_Symbol, timeframe, PeriodoIndicador1MediaMovel, DeslocamentoIndicador1MediaMovel, TipoMediaIndicador1MediaMovel, ModoPrecoIndicador1MediaMovel);
+         return (handleRegraMA != INVALID_HANDLE);
+
+      case CONFIG_IND_BANDAS_BOLINGER:
+         if(handleRegraBandas == INVALID_HANDLE)
+            handleRegraBandas = iBands(_Symbol, timeframe, PeriodoIndicador1, DeslocamentoIndicador1, DesviosIndicador1, ModoPrecoIndicador1);
+         return (handleRegraBandas != INVALID_HANDLE);
+
+      case CONFIG_IND_ENVELOPES:
+         if(handleRegraEnvelopes == INVALID_HANDLE)
+            handleRegraEnvelopes = iCustom(_Symbol, timeframe, "Canais\\Envelopes", PeriodoIndicador3, DeslocamentoIndicador3, TipoMediaIndicador3, ModoPrecoIndicador3, DesviosIndicador3);
+         return (handleRegraEnvelopes != INVALID_HANDLE);
+
+      case CONFIG_IND_KELTNER:
+         if(handleRegraKeltner == INVALID_HANDLE)
+            handleRegraKeltner = iCustom(_Symbol, timeframe, "Canais\\Keltner", PeriodoIndicador1Keltner, DesviosIndicador1Keltner);
+         return (handleRegraKeltner != INVALID_HANDLE);
+
+      case CONFIG_IND_DOCHIAN:
+         if(handleRegraDochian == INVALID_HANDLE)
+            handleRegraDochian = iCustom(_Symbol, timeframe, "Canais\\Dochian", PeriodoIndicador1Dochian);
+         return (handleRegraDochian != INVALID_HANDLE);
+
+      case CONFIG_IND_CANAL_ATR:
+         if(handleRegraCanalATR == INVALID_HANDLE)
+            handleRegraCanalATR = iCustom(_Symbol, timeframe, "Canais\\Canal-ATR", PeriodoIndicador1CanalATR, DesviosIndicador1CanalATR);
+         return (handleRegraCanalATR != INVALID_HANDLE);
+
+      case CONFIG_IND_RSI:
+         if(handleRegraRSI == INVALID_HANDLE)
+            handleRegraRSI = iRSI(_Symbol, timeframe, PeriodoIndicador1RSI, ModoPrecoIndicador1RSI);
+         return (handleRegraRSI != INVALID_HANDLE);
+
+      case CONFIG_IND_ESTOCASTICO:
+         if(handleRegraStochastic == INVALID_HANDLE)
+            handleRegraStochastic = iStochastic(_Symbol, timeframe, KPeriodoIndicador4, DPeriodoIndicador4, LentidaoIndicador4, TipoMediaIndicador4, TipoEstocasticoIndicador4);
+         return (handleRegraStochastic != INVALID_HANDLE);
+
+      case CONFIG_IND_CCI:
+         if(handleRegraCCI == INVALID_HANDLE)
+            handleRegraCCI = iCCI(_Symbol, timeframe, PeriodoIndicador1CCI, ModoPrecoIndicador1CCI);
+         return (handleRegraCCI != INVALID_HANDLE);
+
+      case CONFIG_IND_MFI:
+         if(handleRegraMFI == INVALID_HANDLE)
+            handleRegraMFI = iMFI(_Symbol, timeframe, PeriodoIndicador1MFI, VolumeIndicador1MFI);
+         return (handleRegraMFI != INVALID_HANDLE);
+
+      default:
+         PrintFormat("Modulo 20: indicador nao suportado no motor de regras. Config=%d", (int)configuracao);
+         return false;
+     }
+  }
+
+void LiberarHandleIndicador(int &handle)
+  {
+   if(handle == INVALID_HANDLE)
+      return;
+
+   IndicatorRelease(handle);
+   handle = INVALID_HANDLE;
+  }
+
+void LiberarHandlesMotorRegras()
+  {
+   LiberarHandleIndicador(handleRegraBandas);
+   LiberarHandleIndicador(handleRegraEnvelopes);
+   LiberarHandleIndicador(handleRegraKeltner);
+   LiberarHandleIndicador(handleRegraDochian);
+   LiberarHandleIndicador(handleRegraCanalATR);
+   LiberarHandleIndicador(handleRegraMA);
+   LiberarHandleIndicador(handleRegraRSI);
+   LiberarHandleIndicador(handleRegraStochastic);
+   LiberarHandleIndicador(handleRegraCCI);
+   LiberarHandleIndicador(handleRegraMFI);
+  }
+
 int OnInit()
   {
 //---
@@ -2208,6 +2988,16 @@ int OnInit()
    handleStochastic = INVALID_HANDLE;
    handleCCI = INVALID_HANDLE;
    handleMFI = INVALID_HANDLE;
+   handleRegraBandas = INVALID_HANDLE;
+   handleRegraEnvelopes = INVALID_HANDLE;
+   handleRegraKeltner = INVALID_HANDLE;
+   handleRegraDochian = INVALID_HANDLE;
+   handleRegraCanalATR = INVALID_HANDLE;
+   handleRegraMA = INVALID_HANDLE;
+   handleRegraRSI = INVALID_HANDLE;
+   handleRegraStochastic = INVALID_HANDLE;
+   handleRegraCCI = INVALID_HANDLE;
+   handleRegraMFI = INVALID_HANDLE;
 
    //+--+
    //| MODULO 17 - CANAL DE BANDAS
@@ -2307,6 +3097,35 @@ int OnInit()
         }
      }
 
+   //+--+
+   //| MODULO 20 - MOTOR DE REGRAS
+   //+--+
+   if(ModuloMotorRegrasHabilitado())
+     {
+      for(int slot = 1; slot <= 4; slot++)
+        {
+         if(SlotMotorRegrasReferenciado(true, slot))
+           {
+            const ENUM_CONFIGURAR_INDICADORES configuracaoCompra = ObterConfiguracaoIndicadorMotorRegras(true, slot);
+            if(!InicializarHandleMotorRegras(configuracaoCompra, timeframe))
+              {
+               PrintFormat("Modulo 20: falha ao criar handle do indicador configurado para compra. Slot=%d Config=%d Erro=%d", slot, (int)configuracaoCompra, GetLastError());
+               return(INIT_FAILED);
+              }
+           }
+
+         if(SlotMotorRegrasReferenciado(false, slot))
+           {
+            const ENUM_CONFIGURAR_INDICADORES configuracaoVenda = ObterConfiguracaoIndicadorMotorRegras(false, slot);
+            if(!InicializarHandleMotorRegras(configuracaoVenda, timeframe))
+              {
+               PrintFormat("Modulo 20: falha ao criar handle do indicador configurado para venda. Slot=%d Config=%d Erro=%d", slot, (int)configuracaoVenda, GetLastError());
+               return(INIT_FAILED);
+              }
+           }
+        }
+     }
+
 //---
    return(INIT_SUCCEEDED);
   }
@@ -2351,6 +3170,8 @@ void OnDeinit(const int reason)
       IndicatorRelease(handleMFI);
       handleMFI = INVALID_HANDLE;
      }
+
+   LiberarHandlesMotorRegras();
 
   }
 //+------------------------------------------------------------------+
@@ -2405,8 +3226,32 @@ void OnTick()
       return;
      }
 
+   // Modulo 20 - Motor de Regras
+   if(ModuloMotorRegrasHabilitado())
+     {
+      if(OperarCompra == SIM && SinalMotorRegrasCompra())
+        {
+         const datetime velaAtual = iTime(_Symbol, _Period, 0);
+         if(velaAtual != ultimaVelaEntrada)
+           {
+            ultimaVelaEntrada = velaAtual;
+            AbrirCompra();
+           }
+        }
+      else
+         if(OperarVenda == SIM && SinalMotorRegrasVenda())
+           {
+            const datetime velaAtual = iTime(_Symbol, _Period, 0);
+            if(velaAtual != ultimaVelaEntrada)
+              {
+               ultimaVelaEntrada = velaAtual;
+               AbrirVenda();
+              }
+           }
+     }
+
    // Modulo 18 - Cruzamento de Sinais
-   if(EntradaCruzamento != SINAL_ENTRADA_NAO_USAR)
+   else if(EntradaCruzamento != SINAL_ENTRADA_NAO_USAR)
      {
       if(OperarCompra == SIM && SinalCruzamentoCompra())
         {
