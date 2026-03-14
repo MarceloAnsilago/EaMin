@@ -1229,6 +1229,7 @@ input ENUM_SIM_NAO ProcurarSaidaVelaSeguinteEntrada = NAO;         // Procurar s
 input double SaldoAjusteSomarConta = 0.0;                          // Saldo de ajuste para somar com a conta
 
 input group "23.Finalizacao";
+input bool ModoMineracao = false;                                 // Execucao leve para otimizacao massiva
 input bool ExibirIndicadoresAoCarregarExpertNoGrafico = false;     // Exibir indicadores ao carregar o expert advisor em um grafico
 input bool CriarPainelEBoletaNoGrafico = false;                    // Criar painel e boleta no grafico
 input bool CriarLogDoExpertNoGrafico = false;                      // Criar log do expert no grafico
@@ -1292,6 +1293,146 @@ struct DadosVela
   };
 
 DadosVela dados;
+
+bool ModuloMotorRegrasHabilitado();
+bool OsciladorHabilitado();
+bool CanalBandasHabilitado();
+
+bool ModoMineracaoAtivo()
+  {
+   return ModoMineracao;
+  }
+
+void LimparInterfaceMineracao()
+  {
+   if(ModoMineracaoAtivo())
+      Comment("");
+  }
+
+bool EstatisticaTesterValida(const double valor)
+  {
+   return MathIsValidNumber(valor);
+  }
+
+bool EstrategiaAprovadaParaExportacao(const double profitFactor, const double drawdownPct, const double trades)
+  {
+   if(profitFactor <= 1.3)
+      return false;
+
+   if(drawdownPct >= 25.0)
+      return false;
+
+   if(trades <= 150.0)
+      return false;
+
+   return true;
+  }
+
+string ObterResumoParametrosEstrategia()
+  {
+   string parametros = StringFormat("nome=%s|symbol=%s|tempo=%d|compra=%d|venda=%d|mercado=%d|tipo_operacional=%d|processamento=%d",
+                                    Nome,
+                                    _Symbol,
+                                    (int)TempoGrafico,
+                                    (int)OperarCompra,
+                                    (int)OperarVenda,
+                                    (int)Mercado,
+                                    (int)TipoOperacional,
+                                    (int)ModoProcessamento);
+
+   parametros += StringFormat("|volume=%.2f|spread=%d|ordem_entrada=%d|ordem_saida=%d",
+                              VolumeInicial,
+                              SpreadMaximo,
+                              (int)TipoOrdemEntrada,
+                              (int)TipoOrdemSaida);
+
+   parametros += StringFormat("|stop=%.5f|take=%.5f|be_sl=%.5f|trail_sl=%.5f|be_tp=%.5f|trail_tp=%.5f",
+                              StoplossInicial,
+                              TakeProfitInicial,
+                              InicioBreakEvenSL,
+                              PassoTrailingStop,
+                              InicioBreakEvenTP,
+                              PassoTrailingProfit);
+
+   if(ModuloMotorRegrasHabilitado())
+      parametros += StringFormat("|modulo=regras|compra=%d,%d,%d,%d|venda=%d,%d,%d,%d",
+                                 (int)ConfigurarIndicador1,
+                                 (int)ConfigurarIndicador2,
+                                 (int)ConfigurarIndicador3,
+                                 (int)ConfigurarIndicador4,
+                                 (int)ConfigurarIndicadorVenda1,
+                                 (int)ConfigurarIndicadorVenda2,
+                                 (int)ConfigurarIndicadorVenda3,
+                                 (int)ConfigurarIndicadorVenda4);
+   else
+      if(EntradaCruzamento != SINAL_ENTRADA_NAO_USAR)
+         parametros += StringFormat("|modulo=cruzamento|rapido=%d|lento=%d|entrada=%d|sentido=%d|saida=%d",
+                                    (int)SinalRapido,
+                                    (int)SinalLento,
+                                    (int)EntradaCruzamento,
+                                    (int)SentidoCruzamento,
+                                    (int)SaidaCruzamento);
+      else
+         if(OsciladorHabilitado())
+            parametros += StringFormat("|modulo=oscilador|indicador=%d|entrada=%d|sobrecompra=%.2f|sobrevenda=%.2f|sentido=%d|saida=%d",
+                                       (int)IndicadorSobreCompraVenda,
+                                       (int)EntradaSobreCompraVenda,
+                                       NivelSobrecompra,
+                                       NivelSobrevenda,
+                                       (int)SentidoSobreCompraVenda,
+                                       (int)SaidaSobreCompraVenda);
+         else
+            if(CanalBandasHabilitado())
+               parametros += StringFormat("|modulo=canal|indicador=%d|entrada=%d|sentido=%d|saida=%d",
+                                          (int)IndicadorCanalBandas,
+                                          (int)EntradaCanalBandas,
+                                          (int)SentidoCanalBandas,
+                                          (int)SaidaCanalBandas);
+            else
+               parametros += "|modulo=execucao_direta";
+
+   return parametros;
+  }
+
+void ExportarEstrategia(const double score)
+  {
+   const double profitFactor = TesterStatistics(STAT_PROFIT_FACTOR);
+   const double trades = TesterStatistics(STAT_TRADES);
+   const double drawdownPct = TesterStatistics(STAT_EQUITY_DDREL_PERCENT);
+
+   if(!EstatisticaTesterValida(profitFactor) || !EstatisticaTesterValida(trades) || !EstatisticaTesterValida(drawdownPct))
+      return;
+
+   if(!EstrategiaAprovadaParaExportacao(profitFactor, drawdownPct, trades))
+      return;
+
+   const string parametros = ObterResumoParametrosEstrategia();
+   int handle = FileOpen("estrategias_encontradas.csv",
+                         FILE_WRITE|FILE_READ|FILE_CSV|FILE_SHARE_READ|FILE_SHARE_WRITE,
+                         ';');
+
+   if(handle == INVALID_HANDLE)
+     {
+      if(!ModoMineracaoAtivo())
+         PrintFormat("Falha ao abrir arquivo de exportacao das estrategias. Erro=%d", GetLastError());
+      return;
+     }
+
+   const bool arquivoVazio = (FileSize(handle) == 0);
+   FileSeek(handle, 0, SEEK_END);
+
+   if(arquivoVazio)
+      FileWrite(handle, "score", "profit_factor", "trades", "drawdown", "parametros");
+
+   FileWrite(handle,
+             DoubleToString(score, 8),
+             DoubleToString(profitFactor, 4),
+             IntegerToString((int)trades),
+             DoubleToString(drawdownPct, 2),
+             parametros);
+
+   FileClose(handle);
+  }
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
   {
@@ -1491,7 +1632,8 @@ bool PodeOperar()
       MqlTick tick;
       if(!SymbolInfoTick(_Symbol, tick))
         {
-         Print("Nao foi possivel obter o tick atual para validar spread.");
+         if(!ModoMineracaoAtivo())
+            Print("Nao foi possivel obter o tick atual para validar spread.");
          return false;
         }
 
@@ -2630,7 +2772,8 @@ void GerenciarSaidaCanal()
 
    const ulong ticket = (ulong)PositionGetInteger(POSITION_TICKET);
    if(!trade.PositionClose(ticket))
-      PrintFormat("Falha ao fechar posicao por saida do canal. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
+      if(!ModoMineracaoAtivo())
+         PrintFormat("Falha ao fechar posicao por saida do canal. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
   }
 
 void FecharPosicao()
@@ -2640,7 +2783,8 @@ void FecharPosicao()
 
    const ulong ticket = (ulong)PositionGetInteger(POSITION_TICKET);
    if(!trade.PositionClose(ticket))
-      PrintFormat("Falha ao fechar posicao. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
+      if(!ModoMineracaoAtivo())
+         PrintFormat("Falha ao fechar posicao. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
   }
 
 double CalcularDistanciaPreco(const ENUM_TIPO_CALCULO_DISTANCIAS tipoCalculo, const double distancia, const bool isCompra, const double precoReferencia)
@@ -2667,14 +2811,16 @@ void AbrirCompra()
   {
    if(TipoOrdemEntrada != MERCADO)
      {
-      Print("TipoOrdemEntrada = PENDENTE ainda nao implementado nesta etapa.");
+      if(!ModoMineracaoAtivo())
+         Print("TipoOrdemEntrada = PENDENTE ainda nao implementado nesta etapa.");
       return;
      }
 
    double preco = 0.0;
    if(!SymbolInfoDouble(_Symbol, SYMBOL_ASK, preco))
      {
-      Print("Falha ao obter preco ASK para abertura de compra.");
+      if(!ModoMineracaoAtivo())
+         Print("Falha ao obter preco ASK para abertura de compra.");
       return;
      }
 
@@ -2694,7 +2840,8 @@ void AbrirCompra()
 
    if(!trade.Buy(VolumeInicial, _Symbol, preco, sl, tp))
      {
-      PrintFormat("Falha ao abrir compra. Retcode=%d (%s)", trade.ResultRetcode(), trade.ResultRetcodeDescription());
+      if(!ModoMineracaoAtivo())
+         PrintFormat("Falha ao abrir compra. Retcode=%d (%s)", trade.ResultRetcode(), trade.ResultRetcodeDescription());
       return;
      }
 
@@ -2705,14 +2852,16 @@ void AbrirVenda()
   {
    if(TipoOrdemEntrada != MERCADO)
      {
-      Print("TipoOrdemEntrada = PENDENTE ainda nao implementado nesta etapa.");
+      if(!ModoMineracaoAtivo())
+         Print("TipoOrdemEntrada = PENDENTE ainda nao implementado nesta etapa.");
       return;
      }
 
    double preco = 0.0;
    if(!SymbolInfoDouble(_Symbol, SYMBOL_BID, preco))
      {
-      Print("Falha ao obter preco BID para abertura de venda.");
+      if(!ModoMineracaoAtivo())
+         Print("Falha ao obter preco BID para abertura de venda.");
       return;
      }
 
@@ -2732,7 +2881,8 @@ void AbrirVenda()
 
    if(!trade.Sell(VolumeInicial, _Symbol, preco, sl, tp))
      {
-      PrintFormat("Falha ao abrir venda. Retcode=%d (%s)", trade.ResultRetcode(), trade.ResultRetcodeDescription());
+      if(!ModoMineracaoAtivo())
+         PrintFormat("Falha ao abrir venda. Retcode=%d (%s)", trade.ResultRetcode(), trade.ResultRetcodeDescription());
       return;
      }
 
@@ -2780,7 +2930,8 @@ void GerenciarStopLoss()
    double ask = 0.0;
    if(!SymbolInfoDouble(_Symbol, SYMBOL_BID, bid) || !SymbolInfoDouble(_Symbol, SYMBOL_ASK, ask))
      {
-      Print("Falha ao obter BID/ASK para gerenciamento de stop.");
+      if(!ModoMineracaoAtivo())
+         Print("Falha ao obter BID/ASK para gerenciamento de stop.");
       return;
      }
 
@@ -2864,7 +3015,10 @@ void GerenciarStopLoss()
          continue;
 
       if(!trade.PositionModify(ticket, novoSL, tpAtual))
-         PrintFormat("Falha ao modificar SL. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
+        {
+         if(!ModoMineracaoAtivo())
+            PrintFormat("Falha ao modificar SL. Ticket=%I64u Retcode=%d (%s)", ticket, trade.ResultRetcode(), trade.ResultRetcodeDescription());
+        }
      }
   }
 
@@ -2950,7 +3104,8 @@ bool InicializarHandleMotorRegras(const ENUM_CONFIGURAR_INDICADORES configuracao
          return (handleRegraMFI != INVALID_HANDLE);
 
       default:
-         PrintFormat("Modulo 20: indicador nao suportado no motor de regras. Config=%d", (int)configuracao);
+         if(!ModoMineracaoAtivo())
+            PrintFormat("Modulo 20: indicador nao suportado no motor de regras. Config=%d", (int)configuracao);
          return false;
      }
   }
@@ -2982,6 +3137,7 @@ int OnInit()
   {
 //---
    const ENUM_TIMEFRAMES timeframe = ObterTimeframe(TempoGrafico);
+   LimparInterfaceMineracao();
    handleCanal = INVALID_HANDLE;
    handleMA = INVALID_HANDLE;
    handleRSI = INVALID_HANDLE;
@@ -3022,13 +3178,15 @@ int OnInit()
             handleCanal = iCustom(_Symbol, timeframe, "Canais\\Canal-ATR", PeriodoCanalATR, DesviosCanalATR);
             break;
          default:
-            PrintFormat("Indicador de canal nao suportado: %d", (int)IndicadorCanalBandas);
+            if(!ModoMineracaoAtivo())
+               PrintFormat("Indicador de canal nao suportado: %d", (int)IndicadorCanalBandas);
             return(INIT_FAILED);
         }
 
       if(handleCanal == INVALID_HANDLE)
         {
-         PrintFormat("Falha ao criar handle do canal. Indicador=%d Erro=%d", (int)IndicadorCanalBandas, GetLastError());
+         if(!ModoMineracaoAtivo())
+            PrintFormat("Falha ao criar handle do canal. Indicador=%d Erro=%d", (int)IndicadorCanalBandas, GetLastError());
          return(INIT_FAILED);
         }
      }
@@ -3043,7 +3201,8 @@ int OnInit()
          handleMA = iMA(_Symbol, timeframe, PeriodoIndicador1MediaMovel, DeslocamentoIndicador1MediaMovel, TipoMediaIndicador1MediaMovel, ModoPrecoIndicador1MediaMovel);
          if(handleMA == INVALID_HANDLE)
            {
-            PrintFormat("Falha ao criar handle da media movel. Erro=%d", GetLastError());
+            if(!ModoMineracaoAtivo())
+               PrintFormat("Falha ao criar handle da media movel. Erro=%d", GetLastError());
             return(INIT_FAILED);
            }
         }
@@ -3060,7 +3219,8 @@ int OnInit()
             handleRSI = iRSI(_Symbol, timeframe, PeriodoRSI, ModoPrecoRSI);
             if(handleRSI == INVALID_HANDLE)
               {
-               PrintFormat("Falha ao criar handle RSI. Erro=%d", GetLastError());
+               if(!ModoMineracaoAtivo())
+                  PrintFormat("Falha ao criar handle RSI. Erro=%d", GetLastError());
                return(INIT_FAILED);
               }
             break;
@@ -3069,7 +3229,8 @@ int OnInit()
             handleStochastic = iStochastic(_Symbol, timeframe, KPeriodoEstocastico, DPeriodoEstocastico, LentidaoEstocastico, TipoMediaEstocastico, TipoEstocastico);
             if(handleStochastic == INVALID_HANDLE)
               {
-               PrintFormat("Falha ao criar handle Estocastico. Erro=%d", GetLastError());
+               if(!ModoMineracaoAtivo())
+                  PrintFormat("Falha ao criar handle Estocastico. Erro=%d", GetLastError());
                return(INIT_FAILED);
               }
             break;
@@ -3078,7 +3239,8 @@ int OnInit()
             handleCCI = iCCI(_Symbol, timeframe, PeriodoCCI, ModoPrecoCCI);
             if(handleCCI == INVALID_HANDLE)
               {
-               PrintFormat("Falha ao criar handle CCI. Erro=%d", GetLastError());
+               if(!ModoMineracaoAtivo())
+                  PrintFormat("Falha ao criar handle CCI. Erro=%d", GetLastError());
                return(INIT_FAILED);
               }
             break;
@@ -3087,7 +3249,8 @@ int OnInit()
             handleMFI = iMFI(_Symbol, timeframe, PeriodoMFI, VolumeMFI);
             if(handleMFI == INVALID_HANDLE)
               {
-               PrintFormat("Falha ao criar handle MFI. Erro=%d", GetLastError());
+               if(!ModoMineracaoAtivo())
+                  PrintFormat("Falha ao criar handle MFI. Erro=%d", GetLastError());
                return(INIT_FAILED);
               }
             break;
@@ -3109,7 +3272,8 @@ int OnInit()
             const ENUM_CONFIGURAR_INDICADORES configuracaoCompra = ObterConfiguracaoIndicadorMotorRegras(true, slot);
             if(!InicializarHandleMotorRegras(configuracaoCompra, timeframe))
               {
-               PrintFormat("Modulo 20: falha ao criar handle do indicador configurado para compra. Slot=%d Config=%d Erro=%d", slot, (int)configuracaoCompra, GetLastError());
+               if(!ModoMineracaoAtivo())
+                  PrintFormat("Modulo 20: falha ao criar handle do indicador configurado para compra. Slot=%d Config=%d Erro=%d", slot, (int)configuracaoCompra, GetLastError());
                return(INIT_FAILED);
               }
            }
@@ -3119,7 +3283,8 @@ int OnInit()
             const ENUM_CONFIGURAR_INDICADORES configuracaoVenda = ObterConfiguracaoIndicadorMotorRegras(false, slot);
             if(!InicializarHandleMotorRegras(configuracaoVenda, timeframe))
               {
-               PrintFormat("Modulo 20: falha ao criar handle do indicador configurado para venda. Slot=%d Config=%d Erro=%d", slot, (int)configuracaoVenda, GetLastError());
+               if(!ModoMineracaoAtivo())
+                  PrintFormat("Modulo 20: falha ao criar handle do indicador configurado para venda. Slot=%d Config=%d Erro=%d", slot, (int)configuracaoVenda, GetLastError());
                return(INIT_FAILED);
               }
            }
@@ -3135,6 +3300,8 @@ int OnInit()
 void OnDeinit(const int reason)
   {
 //---
+   LimparInterfaceMineracao();
+
    if(handleCanal != INVALID_HANDLE)
      {
       IndicatorRelease(handleCanal);
@@ -3347,5 +3514,35 @@ void OnTick()
 
    GerenciarStopLoss();
    GerenciarSaidaCanal();
+  }
+//+------------------------------------------------------------------+
+
+double OnTester()
+  {
+   const double profitFactor = TesterStatistics(STAT_PROFIT_FACTOR);
+   const double trades = TesterStatistics(STAT_TRADES);
+   const double drawdownPct = TesterStatistics(STAT_EQUITY_DDREL_PERCENT);
+   const double payoff = TesterStatistics(STAT_EXPECTED_PAYOFF);
+
+   if(!EstatisticaTesterValida(profitFactor) || !EstatisticaTesterValida(trades) || !EstatisticaTesterValida(drawdownPct) || !EstatisticaTesterValida(payoff))
+      return -1.0;
+
+   if(trades < 120.0)
+      return -1.0;
+
+   if(drawdownPct > 30.0)
+      return -1.0;
+
+   if(profitFactor < 1.2)
+      return -1.0;
+
+   const double score = (profitFactor * payoff * MathSqrt(trades)) - (drawdownPct * 2.0);
+   if(!EstatisticaTesterValida(score))
+      return -1.0;
+
+   if(score > 0.0)
+      ExportarEstrategia(score);
+
+   return score;
   }
 //+------------------------------------------------------------------+
