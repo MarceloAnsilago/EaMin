@@ -635,6 +635,7 @@ enum ENUM_OPERADOR_LOGICO
 
 input group "0.Mineracao";
 input bool ModoMineracao = false; // ModoMineracao
+input bool MineracaoAutomatica = true; // MineracaoAutomatica
 
 input group "1.Nome";
 input string Nome = "EaMin";
@@ -1299,6 +1300,618 @@ DadosVela dados;
 bool ModuloMotorRegrasHabilitado();
 bool OsciladorHabilitado();
 bool CanalBandasHabilitado();
+bool ModoMineracaoAtivo();
+void GerarParametrosAleatorios();
+
+const int TOTAL_REGRAS_MINERACAO = 4;
+
+bool gMineracaoAutomaticaConfigurada = false;
+uint gSementeMineracao = 0;
+string gDescricaoEstrategiaMinerada = "";
+
+ENUM_CONFIGURAR_INDICADORES gConfigCompra[TOTAL_REGRAS_MINERACAO];
+ENUM_CONFIGURAR_INDICADORES gConfigVenda[TOTAL_REGRAS_MINERACAO];
+ENUM_MENU_CONDICAO gMenu1Compra[TOTAL_REGRAS_MINERACAO];
+ENUM_MENU_CONDICAO gMenu2Compra[TOTAL_REGRAS_MINERACAO];
+ENUM_MENU_CONDICAO gMenu1Venda[TOTAL_REGRAS_MINERACAO];
+ENUM_MENU_CONDICAO gMenu2Venda[TOTAL_REGRAS_MINERACAO];
+ENUM_SIMPLES_VELA gSimples1Compra[TOTAL_REGRAS_MINERACAO];
+ENUM_SIMPLES_VELA gSimples2Compra[TOTAL_REGRAS_MINERACAO];
+ENUM_SIMPLES_VELA gSimples1Venda[TOTAL_REGRAS_MINERACAO];
+ENUM_SIMPLES_VELA gSimples2Venda[TOTAL_REGRAS_MINERACAO];
+ENUM_OPCAO_COMPARACAO gOpcaoCompra[TOTAL_REGRAS_MINERACAO];
+ENUM_OPCAO_COMPARACAO gOpcaoVenda[TOTAL_REGRAS_MINERACAO];
+ENUM_COMANDO_CONDICAO gComandoCompra[TOTAL_REGRAS_MINERACAO];
+ENUM_COMANDO_CONDICAO gComandoVenda[TOTAL_REGRAS_MINERACAO];
+double gValorCompra[TOTAL_REGRAS_MINERACAO];
+double gValorVenda[TOTAL_REGRAS_MINERACAO];
+
+int gPeriodoMineradoRSI = 14;
+int gPeriodoMineradoCCI = 14;
+int gPeriodoMineradoMFI = 14;
+int gPeriodoMineradoMA = 14;
+int gPeriodoMineradoDochian = 20;
+int gPeriodoMineradoStochK = 5;
+int gPeriodoMineradoStochD = 3;
+int gPeriodoMineradoStochSlow = 3;
+ENUM_ESTOCASTICO_ENTRADA gEntradaMineradaEstocastico = ESTOCASTICO_PRINCIPAL;
+ENUM_DOCHIAN_ENTRADA gEntradaMineradaDochian = DOCHIAN_CENTRAL;
+
+ENUM_TIPO_CALCULO_DISTANCIAS gTipoCalculoStoplossMinerado = EM_PONTOS;
+ENUM_TIPO_CALCULO_DISTANCIAS gTipoCalculoTakeProfitMinerado = EM_PONTOS;
+double gStoplossMinerado = 0.0;
+double gTakeProfitMinerado = 0.0;
+double gInicioBreakEvenMinerado = 0.0;
+double gDistanciaBreakEvenMinerada = 0.0;
+double gInicioTrailingMinerado = 0.0;
+double gPassoTrailingMinerado = 0.0;
+
+bool MineracaoAutomaticaAtiva()
+  {
+   return (ModoMineracaoAtivo() && MineracaoAutomatica);
+  }
+
+bool UsandoParametrosMinerados()
+  {
+   return (MineracaoAutomaticaAtiva() && gMineracaoAutomaticaConfigurada);
+  }
+
+void ResetarParametrosMinerados()
+  {
+   gMineracaoAutomaticaConfigurada = false;
+   gSementeMineracao = 0;
+   gDescricaoEstrategiaMinerada = "";
+
+   for(int i = 0; i < TOTAL_REGRAS_MINERACAO; i++)
+     {
+      gConfigCompra[i] = CONFIG_IND_NAO_USAR;
+      gConfigVenda[i] = CONFIG_IND_NAO_USAR;
+      gMenu1Compra[i] = MENU_NAO_USAR;
+      gMenu2Compra[i] = MENU_NAO_USAR;
+      gMenu1Venda[i] = MENU_NAO_USAR;
+      gMenu2Venda[i] = MENU_NAO_USAR;
+      gSimples1Compra[i] = SIMPLES_VELA_ATUAL;
+      gSimples2Compra[i] = SIMPLES_VELA_ATUAL;
+      gSimples1Venda[i] = SIMPLES_VELA_ATUAL;
+      gSimples2Venda[i] = SIMPLES_VELA_ATUAL;
+      gOpcaoCompra[i] = COMPARAR_MAIOR_QUE;
+      gOpcaoVenda[i] = COMPARAR_MENOR_QUE;
+      gComandoCompra[i] = (i == 0) ? COMANDO_SE : COMANDO_E;
+      gComandoVenda[i] = (i == 0) ? COMANDO_SE : COMANDO_E;
+      gValorCompra[i] = 0.0;
+      gValorVenda[i] = 0.0;
+     }
+
+   gPeriodoMineradoRSI = PeriodoIndicador1RSI;
+   gPeriodoMineradoCCI = PeriodoIndicador1CCI;
+   gPeriodoMineradoMFI = PeriodoIndicador1MFI;
+   gPeriodoMineradoMA = PeriodoIndicador1MediaMovel;
+   gPeriodoMineradoDochian = PeriodoIndicador1Dochian;
+   gPeriodoMineradoStochK = KPeriodoIndicador4;
+   gPeriodoMineradoStochD = DPeriodoIndicador4;
+   gPeriodoMineradoStochSlow = LentidaoIndicador4;
+   gEntradaMineradaEstocastico = EntradaIndicador4;
+   gEntradaMineradaDochian = EntradaIndicador1Dochian;
+
+   gTipoCalculoStoplossMinerado = TipoCalculoStoploss;
+   gTipoCalculoTakeProfitMinerado = TipoCalculoTakeProfit;
+   gStoplossMinerado = StoplossInicial;
+   gTakeProfitMinerado = TakeProfitInicial;
+   gInicioBreakEvenMinerado = InicioBreakEvenSL;
+   gDistanciaBreakEvenMinerada = DistanciaBreakEvenSL;
+   gInicioTrailingMinerado = InicioTrailingStop;
+   gPassoTrailingMinerado = PassoTrailingStop;
+  }
+
+int NumeroAleatorio(const int minimo, const int maximo)
+  {
+   if(maximo <= minimo)
+      return minimo;
+
+   return minimo + (MathRand() % (maximo - minimo + 1));
+  }
+
+bool ChanceAleatoria(const int chancePercentual)
+  {
+   if(chancePercentual <= 0)
+      return false;
+
+   if(chancePercentual >= 100)
+      return true;
+
+   return (NumeroAleatorio(1, 100) <= chancePercentual);
+  }
+
+ENUM_CONFIGURAR_INDICADORES SortearIndicadorMineracao()
+  {
+   switch(NumeroAleatorio(0, 5))
+     {
+      case 0:
+         return CONFIG_IND_RSI;
+      case 1:
+         return CONFIG_IND_CCI;
+      case 2:
+         return CONFIG_IND_MFI;
+      case 3:
+         return CONFIG_IND_ESTOCASTICO;
+      case 4:
+         return CONFIG_IND_MEDIA_MOVEL;
+      default:
+         return CONFIG_IND_DOCHIAN;
+     }
+  }
+
+bool IndicadorOsciladorMineracao(const ENUM_CONFIGURAR_INDICADORES configuracao)
+  {
+   return (configuracao == CONFIG_IND_RSI ||
+           configuracao == CONFIG_IND_CCI ||
+           configuracao == CONFIG_IND_MFI ||
+           configuracao == CONFIG_IND_ESTOCASTICO);
+  }
+
+int ObterPeriodoIndicadorMinerado(const ENUM_CONFIGURAR_INDICADORES configuracao)
+  {
+   switch(configuracao)
+     {
+      case CONFIG_IND_RSI:
+         return UsandoParametrosMinerados() ? gPeriodoMineradoRSI : PeriodoIndicador1RSI;
+      case CONFIG_IND_CCI:
+         return UsandoParametrosMinerados() ? gPeriodoMineradoCCI : PeriodoIndicador1CCI;
+      case CONFIG_IND_MFI:
+         return UsandoParametrosMinerados() ? gPeriodoMineradoMFI : PeriodoIndicador1MFI;
+      case CONFIG_IND_ESTOCASTICO:
+         return UsandoParametrosMinerados() ? gPeriodoMineradoStochK : KPeriodoIndicador4;
+      case CONFIG_IND_MEDIA_MOVEL:
+         return UsandoParametrosMinerados() ? gPeriodoMineradoMA : PeriodoIndicador1MediaMovel;
+      case CONFIG_IND_DOCHIAN:
+         return UsandoParametrosMinerados() ? gPeriodoMineradoDochian : PeriodoIndicador1Dochian;
+      default:
+         return 0;
+     }
+  }
+
+string NomeIndicadorMinerado(const ENUM_CONFIGURAR_INDICADORES configuracao)
+  {
+   switch(configuracao)
+     {
+      case CONFIG_IND_RSI:
+         return StringFormat("RSI(%d)", ObterPeriodoIndicadorMinerado(configuracao));
+      case CONFIG_IND_CCI:
+         return StringFormat("CCI(%d)", ObterPeriodoIndicadorMinerado(configuracao));
+      case CONFIG_IND_MFI:
+         return StringFormat("MFI(%d)", ObterPeriodoIndicadorMinerado(configuracao));
+      case CONFIG_IND_ESTOCASTICO:
+         return StringFormat("Stoch(%d,%d,%d)",
+                             UsandoParametrosMinerados() ? gPeriodoMineradoStochK : KPeriodoIndicador4,
+                             UsandoParametrosMinerados() ? gPeriodoMineradoStochD : DPeriodoIndicador4,
+                             UsandoParametrosMinerados() ? gPeriodoMineradoStochSlow : LentidaoIndicador4);
+      case CONFIG_IND_MEDIA_MOVEL:
+         return StringFormat("MA(%d)", ObterPeriodoIndicadorMinerado(configuracao));
+      case CONFIG_IND_DOCHIAN:
+         return StringFormat("Donchian(%d)", ObterPeriodoIndicadorMinerado(configuracao));
+      default:
+         return "N/A";
+     }
+  }
+
+ENUM_CONFIGURAR_INDICADORES ConfiguracaoMineradaPorSlot(const bool compra, const int slot)
+  {
+   if(slot < 1 || slot > TOTAL_REGRAS_MINERACAO)
+      return CONFIG_IND_NAO_USAR;
+
+   if(!UsandoParametrosMinerados())
+      return CONFIG_IND_NAO_USAR;
+
+   return compra ? gConfigCompra[slot - 1] : gConfigVenda[slot - 1];
+  }
+
+ENUM_MENU_CONDICAO Menu1Minerado(const bool compra, const int slot)
+  {
+   if(slot < 1 || slot > TOTAL_REGRAS_MINERACAO)
+      return MENU_NAO_USAR;
+
+   return compra ? gMenu1Compra[slot - 1] : gMenu1Venda[slot - 1];
+  }
+
+ENUM_MENU_CONDICAO Menu2Minerado(const bool compra, const int slot)
+  {
+   if(slot < 1 || slot > TOTAL_REGRAS_MINERACAO)
+      return MENU_NAO_USAR;
+
+   return compra ? gMenu2Compra[slot - 1] : gMenu2Venda[slot - 1];
+  }
+
+ENUM_SIMPLES_VELA Simples1Minerado(const bool compra, const int slot)
+  {
+   if(slot < 1 || slot > TOTAL_REGRAS_MINERACAO)
+      return SIMPLES_VELA_ATUAL;
+
+   return compra ? gSimples1Compra[slot - 1] : gSimples1Venda[slot - 1];
+  }
+
+ENUM_SIMPLES_VELA Simples2Minerado(const bool compra, const int slot)
+  {
+   if(slot < 1 || slot > TOTAL_REGRAS_MINERACAO)
+      return SIMPLES_VELA_ATUAL;
+
+   return compra ? gSimples2Compra[slot - 1] : gSimples2Venda[slot - 1];
+  }
+
+ENUM_OPCAO_COMPARACAO OpcaoMinerada(const bool compra, const int slot)
+  {
+   if(slot < 1 || slot > TOTAL_REGRAS_MINERACAO)
+      return compra ? COMPARAR_MAIOR_QUE : COMPARAR_MENOR_QUE;
+
+   return compra ? gOpcaoCompra[slot - 1] : gOpcaoVenda[slot - 1];
+  }
+
+ENUM_COMANDO_CONDICAO ComandoMinerado(const bool compra, const int slot)
+  {
+   if(slot < 1 || slot > TOTAL_REGRAS_MINERACAO)
+      return COMANDO_SE;
+
+   return compra ? gComandoCompra[slot - 1] : gComandoVenda[slot - 1];
+  }
+
+double ValorMinerado(const bool compra, const int slot)
+  {
+   if(slot < 1 || slot > TOTAL_REGRAS_MINERACAO)
+      return 0.0;
+
+   return compra ? gValorCompra[slot - 1] : gValorVenda[slot - 1];
+  }
+
+ENUM_ESTOCASTICO_ENTRADA EntradaEstocasticoEfetiva()
+  {
+   return UsandoParametrosMinerados() ? gEntradaMineradaEstocastico : EntradaIndicador4;
+  }
+
+ENUM_DOCHIAN_ENTRADA EntradaDochianEfetiva()
+  {
+   return UsandoParametrosMinerados() ? gEntradaMineradaDochian : EntradaIndicador1Dochian;
+  }
+
+ENUM_TIPO_CALCULO_DISTANCIAS TipoCalculoStoplossEfetivo()
+  {
+   return UsandoParametrosMinerados() ? gTipoCalculoStoplossMinerado : TipoCalculoStoploss;
+  }
+
+ENUM_TIPO_CALCULO_DISTANCIAS TipoCalculoTakeProfitEfetivo()
+  {
+   return UsandoParametrosMinerados() ? gTipoCalculoTakeProfitMinerado : TipoCalculoTakeProfit;
+  }
+
+double StoplossInicialEfetivo()
+  {
+   return UsandoParametrosMinerados() ? gStoplossMinerado : StoplossInicial;
+  }
+
+double TakeProfitInicialEfetivo()
+  {
+   return UsandoParametrosMinerados() ? gTakeProfitMinerado : TakeProfitInicial;
+  }
+
+double InicioBreakEvenSLEfetivo()
+  {
+   return UsandoParametrosMinerados() ? gInicioBreakEvenMinerado : InicioBreakEvenSL;
+  }
+
+double DistanciaBreakEvenSLEfetiva()
+  {
+   return UsandoParametrosMinerados() ? gDistanciaBreakEvenMinerada : DistanciaBreakEvenSL;
+  }
+
+double InicioTrailingStopEfetivo()
+  {
+   return UsandoParametrosMinerados() ? gInicioTrailingMinerado : InicioTrailingStop;
+  }
+
+double PassoTrailingStopEfetivo()
+  {
+   return UsandoParametrosMinerados() ? gPassoTrailingMinerado : PassoTrailingStop;
+  }
+
+ENUM_OPCAO_COMPARACAO SortearOperadorOscilador(const bool compra)
+  {
+   switch(NumeroAleatorio(0, 3))
+     {
+      case 0:
+         return compra ? COMPARAR_MENOR_QUE : COMPARAR_MAIOR_QUE;
+      case 1:
+         return compra ? COMPARAR_MENOR_IGUAL_QUE : COMPARAR_MAIOR_IGUAL_QUE;
+      case 2:
+         return compra ? COMPARAR_CRUZAR_CIMA_DE : COMPARAR_CRUZAR_BAIXO_DE;
+      default:
+         return compra ? COMPARAR_CRUZAR_FECHAR_ACIMA_DE : COMPARAR_CRUZAR_FECHAR_ABAIXO_DE;
+     }
+  }
+
+ENUM_OPCAO_COMPARACAO SortearOperadorPreco(const bool compra)
+  {
+   switch(NumeroAleatorio(0, 3))
+     {
+      case 0:
+         return compra ? COMPARAR_MAIOR_QUE : COMPARAR_MENOR_QUE;
+      case 1:
+         return compra ? COMPARAR_MAIOR_IGUAL_QUE : COMPARAR_MENOR_IGUAL_QUE;
+      case 2:
+         return compra ? COMPARAR_CRUZAR_CIMA_DE : COMPARAR_CRUZAR_BAIXO_DE;
+      default:
+         return compra ? COMPARAR_CRUZAR_FECHAR_ACIMA_DE : COMPARAR_CRUZAR_FECHAR_ABAIXO_DE;
+     }
+  }
+
+double SortearNivelOscilador(const ENUM_CONFIGURAR_INDICADORES configuracao, const bool compra)
+  {
+   if(configuracao == CONFIG_IND_CCI)
+     {
+      if(compra)
+         return (double)NumeroAleatorio(-220, -40);
+
+      return (double)NumeroAleatorio(40, 220);
+     }
+
+   if(compra)
+      return (double)NumeroAleatorio(10, 40);
+
+   return (double)NumeroAleatorio(60, 90);
+  }
+
+void DesativarRegraMinerada(const bool compra, const int indice)
+  {
+   if(indice < 0 || indice >= TOTAL_REGRAS_MINERACAO)
+      return;
+
+   if(compra)
+     {
+      gMenu1Compra[indice] = MENU_NAO_USAR;
+      gMenu2Compra[indice] = MENU_NAO_USAR;
+      gOpcaoCompra[indice] = COMPARAR_MAIOR_QUE;
+      gComandoCompra[indice] = (indice == 0) ? COMANDO_SE : COMANDO_E;
+      gValorCompra[indice] = 0.0;
+      return;
+     }
+
+   gMenu1Venda[indice] = MENU_NAO_USAR;
+   gMenu2Venda[indice] = MENU_NAO_USAR;
+   gOpcaoVenda[indice] = COMPARAR_MENOR_QUE;
+   gComandoVenda[indice] = (indice == 0) ? COMANDO_SE : COMANDO_E;
+   gValorVenda[indice] = 0.0;
+  }
+
+void ConfigurarRegraMinerada(const bool compra,
+                             const int indice,
+                             const ENUM_MENU_CONDICAO menu1,
+                             const ENUM_MENU_CONDICAO menu2,
+                             const ENUM_OPCAO_COMPARACAO opcao,
+                             const ENUM_COMANDO_CONDICAO comando,
+                             const double valorComparacao)
+  {
+   if(indice < 0 || indice >= TOTAL_REGRAS_MINERACAO)
+      return;
+
+   if(compra)
+     {
+      gMenu1Compra[indice] = menu1;
+      gMenu2Compra[indice] = menu2;
+      gOpcaoCompra[indice] = opcao;
+      gComandoCompra[indice] = comando;
+      gSimples1Compra[indice] = SIMPLES_VELA_ATUAL;
+      gSimples2Compra[indice] = SIMPLES_VELA_ATUAL;
+      gValorCompra[indice] = valorComparacao;
+      return;
+     }
+
+   gMenu1Venda[indice] = menu1;
+   gMenu2Venda[indice] = menu2;
+   gOpcaoVenda[indice] = opcao;
+   gComandoVenda[indice] = comando;
+   gSimples1Venda[indice] = SIMPLES_VELA_ATUAL;
+   gSimples2Venda[indice] = SIMPLES_VELA_ATUAL;
+   gValorVenda[indice] = valorComparacao;
+  }
+
+void ConfigurarRegraPorIndicador(const bool compra,
+                                 const int indice,
+                                 const ENUM_CONFIGURAR_INDICADORES configuracao,
+                                 const ENUM_COMANDO_CONDICAO comando)
+  {
+   if(IndicadorOsciladorMineracao(configuracao))
+     {
+      ConfigurarRegraMinerada(compra,
+                              indice,
+                              (ENUM_MENU_CONDICAO)((int)MENU_INDICADOR_1 + (indice * 10)),
+                              MENU_VALOR_ABSOLUTO,
+                              SortearOperadorOscilador(compra),
+                              comando,
+                              SortearNivelOscilador(configuracao, compra));
+      return;
+     }
+
+   ConfigurarRegraMinerada(compra,
+                           indice,
+                           MENU_FECHAMENTO_VELA,
+                           (ENUM_MENU_CONDICAO)((int)MENU_INDICADOR_1 + (indice * 10)),
+                           SortearOperadorPreco(compra),
+                           comando,
+                           0.0);
+  }
+
+string DescreverOperador(const ENUM_OPCAO_COMPARACAO opcao)
+  {
+   switch(opcao)
+     {
+      case COMPARAR_MAIOR_QUE:
+         return ">";
+      case COMPARAR_MENOR_QUE:
+         return "<";
+      case COMPARAR_MAIOR_IGUAL_QUE:
+         return ">=";
+      case COMPARAR_MENOR_IGUAL_QUE:
+         return "<=";
+      case COMPARAR_IGUAL_QUE:
+         return "=";
+      case COMPARAR_DIFERENTE_DE:
+         return "!=";
+      case COMPARAR_CRUZAR_CIMA_DE:
+         return " cruza acima ";
+      case COMPARAR_CRUZAR_BAIXO_DE:
+         return " cruza abaixo ";
+      case COMPARAR_CRUZAR_FECHAR_ACIMA_DE:
+         return " cruza/fecha acima ";
+      case COMPARAR_CRUZAR_FECHAR_ABAIXO_DE:
+         return " cruza/fecha abaixo ";
+      default:
+         return "?";
+     }
+  }
+
+string DescreverMenuMinerado(const bool compra, const int indice, const ENUM_MENU_CONDICAO menu)
+  {
+   switch(menu)
+     {
+      case MENU_FECHAMENTO_VELA:
+         return "Close";
+      case MENU_ABERTURA_VELA:
+         return "Open";
+      case MENU_MAXIMA_VELA:
+         return "High";
+      case MENU_MINIMA_VELA:
+         return "Low";
+      case MENU_VALOR_ABSOLUTO:
+         return DoubleToString(ValorMinerado(compra, indice + 1), 2);
+      case MENU_INDICADOR_1:
+      case MENU_INDICADOR_2:
+      case MENU_INDICADOR_3:
+      case MENU_INDICADOR_4:
+        {
+         const int slot = (menu / 10);
+         return NomeIndicadorMinerado(ConfiguracaoMineradaPorSlot(compra, slot));
+        }
+      default:
+         return "N/A";
+     }
+  }
+
+string DescreverRegraMinerada(const bool compra, const int indice)
+  {
+   const int slot = indice + 1;
+   const ENUM_MENU_CONDICAO menu1 = Menu1Minerado(compra, slot);
+   const ENUM_MENU_CONDICAO menu2 = Menu2Minerado(compra, slot);
+
+   if(menu1 == MENU_NAO_USAR || menu2 == MENU_NAO_USAR)
+      return "";
+
+   return DescreverMenuMinerado(compra, indice, menu1) +
+          DescreverOperador(OpcaoMinerada(compra, slot)) +
+          DescreverMenuMinerado(compra, indice, menu2);
+  }
+
+string MontarDescricaoEstrategiaMinerada()
+  {
+   string descricaoCompra = "";
+   string descricaoVenda = "";
+
+   for(int i = 0; i < TOTAL_REGRAS_MINERACAO; i++)
+     {
+      const string regraCompra = DescreverRegraMinerada(true, i);
+      const string regraVenda = DescreverRegraMinerada(false, i);
+
+      if(regraCompra != "")
+        {
+         if(descricaoCompra != "")
+            descricaoCompra += (ComandoMinerado(true, i + 1) == COMANDO_OU || ComandoMinerado(true, i + 1) == COMANDO_OU_SE || ComandoMinerado(true, i + 1) == COMANDO_OU_TAMBEM) ? " OR " : " AND ";
+         descricaoCompra += regraCompra;
+        }
+
+      if(regraVenda != "")
+        {
+         if(descricaoVenda != "")
+            descricaoVenda += (ComandoMinerado(false, i + 1) == COMANDO_OU || ComandoMinerado(false, i + 1) == COMANDO_OU_SE || ComandoMinerado(false, i + 1) == COMANDO_OU_TAMBEM) ? " OR " : " AND ";
+         descricaoVenda += regraVenda;
+        }
+     }
+
+   return StringFormat("seed=%u|buy=%s|sell=%s|sl=%.0f|tp=%.0f|be=%.0f/%.0f|trail=%.0f/%.0f",
+                       gSementeMineracao,
+                       descricaoCompra,
+                       descricaoVenda,
+                       StoplossInicialEfetivo(),
+                       TakeProfitInicialEfetivo(),
+                       InicioBreakEvenSLEfetivo(),
+                       DistanciaBreakEvenSLEfetiva(),
+                       InicioTrailingStopEfetivo(),
+                       PassoTrailingStopEfetivo());
+  }
+
+void GerarParametrosAleatorios()
+  {
+   ResetarParametrosMinerados();
+
+   gSementeMineracao = ((uint)GetTickCount() ^ (uint)GetMicrosecondCount() ^ (uint)TimeLocal());
+   MathSrand((int)gSementeMineracao);
+
+   for(int i = 0; i < TOTAL_REGRAS_MINERACAO; i++)
+     {
+      DesativarRegraMinerada(true, i);
+      DesativarRegraMinerada(false, i);
+     }
+
+   gPeriodoMineradoRSI = NumeroAleatorio(5, 29);
+   gPeriodoMineradoCCI = NumeroAleatorio(10, 60);
+   gPeriodoMineradoMFI = NumeroAleatorio(5, 30);
+   gPeriodoMineradoMA = NumeroAleatorio(20, 180);
+   gPeriodoMineradoDochian = NumeroAleatorio(10, 80);
+   gPeriodoMineradoStochK = NumeroAleatorio(5, 24);
+   gPeriodoMineradoStochD = NumeroAleatorio(3, 10);
+   gPeriodoMineradoStochSlow = NumeroAleatorio(2, 8);
+   gEntradaMineradaEstocastico = ChanceAleatoria(50) ? ESTOCASTICO_PRINCIPAL : ESTOCASTICO_SINAL;
+   gEntradaMineradaDochian = DOCHIAN_CENTRAL;
+
+   gTipoCalculoStoplossMinerado = EM_PONTOS;
+   gTipoCalculoTakeProfitMinerado = EM_PONTOS;
+   gStoplossMinerado = (double)NumeroAleatorio(50, 250);
+   gTakeProfitMinerado = (double)NumeroAleatorio(50, 300);
+
+   if(ChanceAleatoria(50))
+     {
+      gInicioBreakEvenMinerado = (double)NumeroAleatorio(20, (int)MathMax(30.0, gStoplossMinerado));
+      gDistanciaBreakEvenMinerada = (double)NumeroAleatorio(0, 30);
+     }
+   else
+     {
+      gInicioBreakEvenMinerado = 0.0;
+      gDistanciaBreakEvenMinerada = 0.0;
+     }
+
+   if(ChanceAleatoria(55))
+     {
+      gInicioTrailingMinerado = (double)NumeroAleatorio(20, (int)MathMax(40.0, gTakeProfitMinerado));
+      gPassoTrailingMinerado = (double)NumeroAleatorio(10, 80);
+     }
+   else
+     {
+      gInicioTrailingMinerado = 0.0;
+      gPassoTrailingMinerado = 0.0;
+     }
+
+   gConfigCompra[0] = SortearIndicadorMineracao();
+   gConfigVenda[0] = gConfigCompra[0];
+   ConfigurarRegraPorIndicador(true, 0, gConfigCompra[0], COMANDO_SE);
+   ConfigurarRegraPorIndicador(false, 0, gConfigVenda[0], COMANDO_SE);
+
+   if(ChanceAleatoria(65))
+     {
+      gConfigCompra[1] = SortearIndicadorMineracao();
+      gConfigVenda[1] = gConfigCompra[1];
+      const ENUM_COMANDO_CONDICAO comandoSecundario = ChanceAleatoria(25) ? COMANDO_OU : COMANDO_E;
+      ConfigurarRegraPorIndicador(true, 1, gConfigCompra[1], comandoSecundario);
+      ConfigurarRegraPorIndicador(false, 1, gConfigVenda[1], comandoSecundario);
+     }
+
+   gMineracaoAutomaticaConfigurada = true;
+   gDescricaoEstrategiaMinerada = MontarDescricaoEstrategiaMinerada();
+  }
 
 bool ModoMineracaoAtivo()
   {
@@ -1332,6 +1945,11 @@ bool EstrategiaAprovadaParaExportacao(const double profitFactor, const double dr
 
 string ObterResumoParametrosEstrategia()
   {
+   if(UsandoParametrosMinerados())
+     {
+      return StringFormat("modo=mineracao_automatica|%s", gDescricaoEstrategiaMinerada);
+     }
+
    string parametros = StringFormat("nome=%s|symbol=%s|tempo=%d|compra=%d|venda=%d|mercado=%d|tipo_operacional=%d|processamento=%d",
                                     Nome,
                                     _Symbol,
@@ -1349,10 +1967,10 @@ string ObterResumoParametrosEstrategia()
                               (int)TipoOrdemSaida);
 
    parametros += StringFormat("|stop=%.5f|take=%.5f|be_sl=%.5f|trail_sl=%.5f|be_tp=%.5f|trail_tp=%.5f",
-                              StoplossInicial,
-                              TakeProfitInicial,
-                              InicioBreakEvenSL,
-                              PassoTrailingStop,
+                              StoplossInicialEfetivo(),
+                              TakeProfitInicialEfetivo(),
+                              InicioBreakEvenSLEfetivo(),
+                              PassoTrailingStopEfetivo(),
                               InicioBreakEvenTP,
                               PassoTrailingProfit);
 
@@ -1408,6 +2026,14 @@ void ExportarEstrategia(const double score)
    if(!EstrategiaAprovadaParaExportacao(profitFactor, drawdownPct, trades))
       return;
 
+   const ENUM_CONFIGURAR_INDICADORES indicadorPrimario = UsandoParametrosMinerados() ? ConfiguracaoMineradaPorSlot(true, 1) : CONFIG_IND_NAO_USAR;
+   const ENUM_CONFIGURAR_INDICADORES indicadorSecundario = UsandoParametrosMinerados() ? ConfiguracaoMineradaPorSlot(true, 2) : CONFIG_IND_NAO_USAR;
+   const string indicador1 = (UsandoParametrosMinerados() && indicadorPrimario != CONFIG_IND_NAO_USAR) ? NomeIndicadorMinerado(indicadorPrimario) : "";
+   const string indicador2 = (UsandoParametrosMinerados() && indicadorSecundario != CONFIG_IND_NAO_USAR) ? NomeIndicadorMinerado(indicadorSecundario) : "";
+   const string periodo1 = (UsandoParametrosMinerados() && indicadorPrimario != CONFIG_IND_NAO_USAR) ? IntegerToString(ObterPeriodoIndicadorMinerado(indicadorPrimario)) : "";
+   const string nivel1 = (UsandoParametrosMinerados() && Menu2Minerado(true, 1) == MENU_VALOR_ABSOLUTO) ? DoubleToString(ValorMinerado(true, 1), 2) : "";
+   const string stoploss = DoubleToString(StoplossInicialEfetivo(), 2);
+   const string takeprofit = DoubleToString(TakeProfitInicialEfetivo(), 2);
    const string parametros = ObterResumoParametrosEstrategia();
    int handle = FileOpen("estrategias_encontradas.csv",
                          FILE_WRITE|FILE_READ|FILE_CSV|FILE_SHARE_READ|FILE_SHARE_WRITE,
@@ -1424,13 +2050,19 @@ void ExportarEstrategia(const double score)
    FileSeek(handle, 0, SEEK_END);
 
    if(arquivoVazio)
-      FileWrite(handle, "score", "profit_factor", "trades", "drawdown", "parametros");
+      FileWrite(handle, "score", "profit_factor", "trades", "drawdown", "indicador1", "indicador2", "periodo1", "nivel1", "sl", "tp", "parametros");
 
    FileWrite(handle,
              DoubleToString(score, 8),
              DoubleToString(profitFactor, 4),
              IntegerToString((int)trades),
              DoubleToString(drawdownPct, 2),
+             indicador1,
+             indicador2,
+             periodo1,
+             nivel1,
+             stoploss,
+             takeprofit,
              parametros);
 
    FileClose(handle);
@@ -1874,6 +2506,9 @@ double ObterValorOscilador(const ENUM_OSCILADOR_INDICADOR indicador, const int s
 
 bool OsciladorHabilitado()
   {
+   if(UsandoParametrosMinerados())
+      return false;
+
    return (IndicadorSobreCompraVenda != NAO_USAR && EntradaSobreCompraVenda != OSCILADOR_ENTRADA_NAO_USAR);
   }
 
@@ -2037,6 +2672,9 @@ bool CondicaoMotorRegrasAtiva(const ENUM_MENU_CONDICAO menu1, const ENUM_MENU_CO
 
 bool ModuloMotorRegrasHabilitado()
   {
+   if(UsandoParametrosMinerados())
+      return true;
+
    if(CondicaoMotorRegrasAtiva(Menu1Indicador1, Menu2Indicador1))
       return true;
    if(CondicaoMotorRegrasAtiva(Menu1Indicador2, Menu2Indicador2))
@@ -2059,6 +2697,20 @@ bool ModuloMotorRegrasHabilitado()
 
 bool SlotMotorRegrasReferenciado(const bool compra, const int slot)
   {
+   if(UsandoParametrosMinerados())
+     {
+      if(MenuUsaSlotIndicador(Menu1Minerado(compra, 1), slot) || MenuUsaSlotIndicador(Menu2Minerado(compra, 1), slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1Minerado(compra, 2), slot) || MenuUsaSlotIndicador(Menu2Minerado(compra, 2), slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1Minerado(compra, 3), slot) || MenuUsaSlotIndicador(Menu2Minerado(compra, 3), slot))
+         return true;
+      if(MenuUsaSlotIndicador(Menu1Minerado(compra, 4), slot) || MenuUsaSlotIndicador(Menu2Minerado(compra, 4), slot))
+         return true;
+
+      return false;
+     }
+
    if(compra)
      {
       if(MenuUsaSlotIndicador(Menu1Indicador1, slot) || MenuUsaSlotIndicador(Menu2Indicador1, slot))
@@ -2087,6 +2739,9 @@ bool SlotMotorRegrasReferenciado(const bool compra, const int slot)
 
 ENUM_CONFIGURAR_INDICADORES ObterConfiguracaoIndicadorMotorRegras(const bool compra, const int slot)
   {
+   if(UsandoParametrosMinerados())
+      return ConfiguracaoMineradaPorSlot(compra, slot);
+
    switch(slot)
      {
       case 1:
@@ -2157,7 +2812,7 @@ int ObterBufferCanalMotorRegras(const ENUM_CONFIGURAR_INDICADORES configuracao)
            }
 
       case CONFIG_IND_DOCHIAN:
-         switch(EntradaIndicador1Dochian)
+         switch(EntradaDochianEfetiva())
            {
             case DOCHIAN_SUPERIOR:
                return 0;
@@ -2273,7 +2928,7 @@ bool ObterValorIndicadorMotorRegrasPorSlot(const bool compra, const int slot, co
 
       case CONFIG_IND_ESTOCASTICO:
         {
-         const int buffer = (EntradaIndicador4 == ESTOCASTICO_SINAL) ? 1 : 0;
+         const int buffer = (EntradaEstocasticoEfetiva() == ESTOCASTICO_SINAL) ? 1 : 0;
          return CopiarValorBuffer(handleRegraStochastic, buffer, shift, valor);
         }
 
@@ -2367,51 +3022,64 @@ bool PreencherRegraMotorRegras(const bool compra,
    ENUM_COMANDO_CONDICAO comando = COMANDO_SE;
    double valorComparacao = 0.0;
 
-   switch(indice)
+   if(UsandoParametrosMinerados())
      {
-      case 1:
-         menu1 = compra ? Menu1Indicador1 : Menu1IndicadorVenda1;
-         simples1 = compra ? Simples1Indicador1 : Simples1IndicadorVenda1;
-         opcao = compra ? OpcaoIndicador1 : OpcaoIndicadorVenda1;
-         menu2 = compra ? Menu2Indicador1 : Menu2IndicadorVenda1;
-         simples2 = compra ? Simples2Indicador1 : Simples2IndicadorVenda1;
-         comando = compra ? ComandoIndicador1 : ComandoIndicadorVenda1;
-         valorComparacao = compra ? ValorComparacaoIndicador1 : ValorComparacaoIndicadorVenda1;
-         break;
+      menu1 = Menu1Minerado(compra, indice);
+      simples1 = Simples1Minerado(compra, indice);
+      opcao = OpcaoMinerada(compra, indice);
+      menu2 = Menu2Minerado(compra, indice);
+      simples2 = Simples2Minerado(compra, indice);
+      comando = ComandoMinerado(compra, indice);
+      valorComparacao = ValorMinerado(compra, indice);
+     }
+   else
+     {
+      switch(indice)
+        {
+         case 1:
+            menu1 = compra ? Menu1Indicador1 : Menu1IndicadorVenda1;
+            simples1 = compra ? Simples1Indicador1 : Simples1IndicadorVenda1;
+            opcao = compra ? OpcaoIndicador1 : OpcaoIndicadorVenda1;
+            menu2 = compra ? Menu2Indicador1 : Menu2IndicadorVenda1;
+            simples2 = compra ? Simples2Indicador1 : Simples2IndicadorVenda1;
+            comando = compra ? ComandoIndicador1 : ComandoIndicadorVenda1;
+            valorComparacao = compra ? ValorComparacaoIndicador1 : ValorComparacaoIndicadorVenda1;
+            break;
 
-      case 2:
-         menu1 = compra ? Menu1Indicador2 : Menu1IndicadorVenda2;
-         simples1 = compra ? Simples1Indicador2 : Simples1IndicadorVenda2;
-         opcao = compra ? OpcaoIndicador2 : OpcaoIndicadorVenda2;
-         menu2 = compra ? Menu2Indicador2 : Menu2IndicadorVenda2;
-         simples2 = compra ? Simples2Indicador2 : Simples2IndicadorVenda2;
-         comando = compra ? ComandoIndicador2 : ComandoIndicadorVenda2;
-         valorComparacao = compra ? ValorComparacaoIndicador2 : ValorComparacaoIndicadorVenda2;
-         break;
+         case 2:
+            menu1 = compra ? Menu1Indicador2 : Menu1IndicadorVenda2;
+            simples1 = compra ? Simples1Indicador2 : Simples1IndicadorVenda2;
+            opcao = compra ? OpcaoIndicador2 : OpcaoIndicadorVenda2;
+            menu2 = compra ? Menu2Indicador2 : Menu2IndicadorVenda2;
+            simples2 = compra ? Simples2Indicador2 : Simples2IndicadorVenda2;
+            comando = compra ? ComandoIndicador2 : ComandoIndicadorVenda2;
+            valorComparacao = compra ? ValorComparacaoIndicador2 : ValorComparacaoIndicadorVenda2;
+            break;
 
-      case 3:
-         menu1 = compra ? Menu1Indicador3 : Menu1IndicadorVenda3;
-         simples1 = compra ? Simples1Indicador3 : Simples1IndicadorVenda3;
-         opcao = compra ? OpcaoIndicador3 : OpcaoIndicadorVenda3;
-         menu2 = compra ? Menu2Indicador3 : Menu2IndicadorVenda3;
-         simples2 = compra ? Simples2Indicador3 : Simples2IndicadorVenda3;
-         comando = compra ? ComandoIndicador3 : ComandoIndicadorVenda3;
-         valorComparacao = compra ? ValorComparacaoIndicador3 : ValorComparacaoIndicadorVenda3;
-         break;
+         case 3:
+            menu1 = compra ? Menu1Indicador3 : Menu1IndicadorVenda3;
+            simples1 = compra ? Simples1Indicador3 : Simples1IndicadorVenda3;
+            opcao = compra ? OpcaoIndicador3 : OpcaoIndicadorVenda3;
+            menu2 = compra ? Menu2Indicador3 : Menu2IndicadorVenda3;
+            simples2 = compra ? Simples2Indicador3 : Simples2IndicadorVenda3;
+            comando = compra ? ComandoIndicador3 : ComandoIndicadorVenda3;
+            valorComparacao = compra ? ValorComparacaoIndicador3 : ValorComparacaoIndicadorVenda3;
+            break;
 
-      case 4:
-         menu1 = compra ? Menu1Indicador4 : Menu1IndicadorVenda4;
-         simples1 = compra ? Simples1Indicador4 : Simples1IndicadorVenda4;
-         opcao = compra ? OpcaoIndicador4 : OpcaoIndicadorVenda4;
-         menu2 = compra ? Menu2Indicador4 : Menu2IndicadorVenda4;
-         simples2 = compra ? Simples2Indicador4 : Simples2IndicadorVenda4;
-         comando = compra ? ComandoIndicador4 : ComandoIndicadorVenda4;
-         valorComparacao = compra ? ValorComparacaoIndicador4 : ValorComparacaoIndicadorVenda4;
-         break;
+         case 4:
+            menu1 = compra ? Menu1Indicador4 : Menu1IndicadorVenda4;
+            simples1 = compra ? Simples1Indicador4 : Simples1IndicadorVenda4;
+            opcao = compra ? OpcaoIndicador4 : OpcaoIndicadorVenda4;
+            menu2 = compra ? Menu2Indicador4 : Menu2IndicadorVenda4;
+            simples2 = compra ? Simples2Indicador4 : Simples2IndicadorVenda4;
+            comando = compra ? ComandoIndicador4 : ComandoIndicadorVenda4;
+            valorComparacao = compra ? ValorComparacaoIndicador4 : ValorComparacaoIndicadorVenda4;
+            break;
 
-      default:
-         ativa = false;
-         return false;
+         default:
+            ativa = false;
+            return false;
+        }
      }
 
    ativa = CondicaoMotorRegrasAtiva(menu1, menu2);
@@ -2590,6 +3258,9 @@ bool SinalMotorRegrasVenda()
 
 bool CanalBandasHabilitado()
   {
+   if(UsandoParametrosMinerados())
+      return false;
+
    return (IndicadorCanalBandas != BANDAS_NAO_USAR && EntradaCanalBandas != ENTRADA_NAO_USAR);
   }
 
@@ -2829,11 +3500,11 @@ void AbrirCompra()
    double sl = 0.0;
    double tp = 0.0;
 
-   if(StoplossInicial > 0.0)
-      sl = CalcularDistanciaPreco(TipoCalculoStoploss, StoplossInicial, true, preco);
+   if(StoplossInicialEfetivo() > 0.0)
+      sl = CalcularDistanciaPreco(TipoCalculoStoplossEfetivo(), StoplossInicialEfetivo(), true, preco);
 
-   if(TakeProfitInicial > 0.0)
-      tp = CalcularDistanciaPreco(TipoCalculoTakeProfit, -TakeProfitInicial, true, preco);
+   if(TakeProfitInicialEfetivo() > 0.0)
+      tp = CalcularDistanciaPreco(TipoCalculoTakeProfitEfetivo(), -TakeProfitInicialEfetivo(), true, preco);
 
    if(sl > 0.0)
       sl = NormalizeDouble(sl, _Digits);
@@ -2870,11 +3541,11 @@ void AbrirVenda()
    double sl = 0.0;
    double tp = 0.0;
 
-   if(StoplossInicial > 0.0)
-      sl = CalcularDistanciaPreco(TipoCalculoStoploss, StoplossInicial, false, preco);
+   if(StoplossInicialEfetivo() > 0.0)
+      sl = CalcularDistanciaPreco(TipoCalculoStoplossEfetivo(), StoplossInicialEfetivo(), false, preco);
 
-   if(TakeProfitInicial > 0.0)
-      tp = CalcularDistanciaPreco(TipoCalculoTakeProfit, -TakeProfitInicial, false, preco);
+   if(TakeProfitInicialEfetivo() > 0.0)
+      tp = CalcularDistanciaPreco(TipoCalculoTakeProfitEfetivo(), -TakeProfitInicialEfetivo(), false, preco);
 
    if(sl > 0.0)
       sl = NormalizeDouble(sl, _Digits);
@@ -2961,9 +3632,9 @@ void GerenciarStopLoss()
       double novoSL = slAtual;
       bool alterarSL = false;
 
-      if(InicioBreakEvenSL > 0.0 && lucroPontos >= InicioBreakEvenSL)
+      if(InicioBreakEvenSLEfetivo() > 0.0 && lucroPontos >= InicioBreakEvenSLEfetivo())
         {
-         const double slBreakEven = NormalizeDouble((tipoPosicao == POSITION_TYPE_BUY) ? (precoEntrada + (DistanciaBreakEvenSL * _Point)) : (precoEntrada - (DistanciaBreakEvenSL * _Point)), _Digits);
+         const double slBreakEven = NormalizeDouble((tipoPosicao == POSITION_TYPE_BUY) ? (precoEntrada + (DistanciaBreakEvenSLEfetiva() * _Point)) : (precoEntrada - (DistanciaBreakEvenSLEfetiva() * _Point)), _Digits);
 
          if(tipoPosicao == POSITION_TYPE_BUY)
            {
@@ -2983,9 +3654,9 @@ void GerenciarStopLoss()
            }
         }
 
-      if(InicioTrailingStop > 0.0 && PassoTrailingStop > 0.0 && lucroPontos >= InicioTrailingStop)
+      if(InicioTrailingStopEfetivo() > 0.0 && PassoTrailingStopEfetivo() > 0.0 && lucroPontos >= InicioTrailingStopEfetivo())
         {
-         const double slTrailing = NormalizeDouble((tipoPosicao == POSITION_TYPE_BUY) ? (precoAtual - (PassoTrailingStop * _Point)) : (precoAtual + (PassoTrailingStop * _Point)), _Digits);
+         const double slTrailing = NormalizeDouble((tipoPosicao == POSITION_TYPE_BUY) ? (precoAtual - (PassoTrailingStopEfetivo() * _Point)) : (precoAtual + (PassoTrailingStopEfetivo() * _Point)), _Digits);
 
          if(tipoPosicao == POSITION_TYPE_BUY)
            {
@@ -3035,16 +3706,25 @@ void GerenciarStopLoss()
 
 bool ModuloCanalHabilitado()
   {
+   if(UsandoParametrosMinerados())
+      return false;
+
    return (IndicadorCanalBandas != BANDAS_NAO_USAR);
   }
 
 bool ModuloCruzamentoHabilitado()
   {
+   if(UsandoParametrosMinerados())
+      return false;
+
    return (EntradaCruzamento != SINAL_ENTRADA_NAO_USAR);
   }
 
 bool ModuloOsciladorHabilitado()
   {
+   if(UsandoParametrosMinerados())
+      return false;
+
    return (IndicadorSobreCompraVenda != NAO_USAR && EntradaSobreCompraVenda != OSCILADOR_ENTRADA_NAO_USAR);
   }
 
@@ -3057,7 +3737,7 @@ bool InicializarHandleMotorRegras(const ENUM_CONFIGURAR_INDICADORES configuracao
 
       case CONFIG_IND_MEDIA_MOVEL:
          if(handleRegraMA == INVALID_HANDLE)
-            handleRegraMA = iMA(_Symbol, timeframe, PeriodoIndicador1MediaMovel, DeslocamentoIndicador1MediaMovel, TipoMediaIndicador1MediaMovel, ModoPrecoIndicador1MediaMovel);
+            handleRegraMA = iMA(_Symbol, timeframe, UsandoParametrosMinerados() ? gPeriodoMineradoMA : PeriodoIndicador1MediaMovel, DeslocamentoIndicador1MediaMovel, TipoMediaIndicador1MediaMovel, ModoPrecoIndicador1MediaMovel);
          return (handleRegraMA != INVALID_HANDLE);
 
       case CONFIG_IND_BANDAS_BOLINGER:
@@ -3077,7 +3757,7 @@ bool InicializarHandleMotorRegras(const ENUM_CONFIGURAR_INDICADORES configuracao
 
       case CONFIG_IND_DOCHIAN:
          if(handleRegraDochian == INVALID_HANDLE)
-            handleRegraDochian = iCustom(_Symbol, timeframe, "Canais\\Dochian", PeriodoIndicador1Dochian);
+            handleRegraDochian = iCustom(_Symbol, timeframe, "Canais\\Dochian", UsandoParametrosMinerados() ? gPeriodoMineradoDochian : PeriodoIndicador1Dochian);
          return (handleRegraDochian != INVALID_HANDLE);
 
       case CONFIG_IND_CANAL_ATR:
@@ -3087,22 +3767,22 @@ bool InicializarHandleMotorRegras(const ENUM_CONFIGURAR_INDICADORES configuracao
 
       case CONFIG_IND_RSI:
          if(handleRegraRSI == INVALID_HANDLE)
-            handleRegraRSI = iRSI(_Symbol, timeframe, PeriodoIndicador1RSI, ModoPrecoIndicador1RSI);
+            handleRegraRSI = iRSI(_Symbol, timeframe, UsandoParametrosMinerados() ? gPeriodoMineradoRSI : PeriodoIndicador1RSI, ModoPrecoIndicador1RSI);
          return (handleRegraRSI != INVALID_HANDLE);
 
       case CONFIG_IND_ESTOCASTICO:
          if(handleRegraStochastic == INVALID_HANDLE)
-            handleRegraStochastic = iStochastic(_Symbol, timeframe, KPeriodoIndicador4, DPeriodoIndicador4, LentidaoIndicador4, TipoMediaIndicador4, TipoEstocasticoIndicador4);
+            handleRegraStochastic = iStochastic(_Symbol, timeframe, UsandoParametrosMinerados() ? gPeriodoMineradoStochK : KPeriodoIndicador4, UsandoParametrosMinerados() ? gPeriodoMineradoStochD : DPeriodoIndicador4, UsandoParametrosMinerados() ? gPeriodoMineradoStochSlow : LentidaoIndicador4, TipoMediaIndicador4, TipoEstocasticoIndicador4);
          return (handleRegraStochastic != INVALID_HANDLE);
 
       case CONFIG_IND_CCI:
          if(handleRegraCCI == INVALID_HANDLE)
-            handleRegraCCI = iCCI(_Symbol, timeframe, PeriodoIndicador1CCI, ModoPrecoIndicador1CCI);
+            handleRegraCCI = iCCI(_Symbol, timeframe, UsandoParametrosMinerados() ? gPeriodoMineradoCCI : PeriodoIndicador1CCI, ModoPrecoIndicador1CCI);
          return (handleRegraCCI != INVALID_HANDLE);
 
       case CONFIG_IND_MFI:
          if(handleRegraMFI == INVALID_HANDLE)
-            handleRegraMFI = iMFI(_Symbol, timeframe, PeriodoIndicador1MFI, VolumeIndicador1MFI);
+            handleRegraMFI = iMFI(_Symbol, timeframe, UsandoParametrosMinerados() ? gPeriodoMineradoMFI : PeriodoIndicador1MFI, VolumeIndicador1MFI);
          return (handleRegraMFI != INVALID_HANDLE);
 
       default:
@@ -3138,6 +3818,11 @@ void LiberarHandlesMotorRegras()
 int OnInit()
   {
 //---
+   ResetarParametrosMinerados();
+
+   if(MineracaoAutomaticaAtiva())
+      GerarParametrosAleatorios();
+
    const ENUM_TIMEFRAMES timeframe = ObterTimeframe(TempoGrafico);
    LimparInterfaceMineracao();
    handleCanal = INVALID_HANDLE;
