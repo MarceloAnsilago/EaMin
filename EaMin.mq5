@@ -633,6 +633,9 @@ enum ENUM_OPERADOR_LOGICO
    LOGICO_OR = 1
   };
 
+input group "0.Mineracao";
+input bool ModoMineracao = false; // ModoMineracao
+
 input group "1.Nome";
 input string Nome = "EaMin";
 
@@ -1229,7 +1232,6 @@ input ENUM_SIM_NAO ProcurarSaidaVelaSeguinteEntrada = NAO;         // Procurar s
 input double SaldoAjusteSomarConta = 0.0;                          // Saldo de ajuste para somar com a conta
 
 input group "23.Finalizacao";
-input bool ModoMineracao = false;                                 // Execucao leve para otimizacao massiva
 input bool ExibirIndicadoresAoCarregarExpertNoGrafico = false;     // Exibir indicadores ao carregar o expert advisor em um grafico
 input bool CriarPainelEBoletaNoGrafico = false;                    // Criar painel e boleta no grafico
 input bool CriarLogDoExpertNoGrafico = false;                      // Criar log do expert no grafico
