@@ -636,6 +636,7 @@ enum ENUM_OPERADOR_LOGICO
 input group "0.Mineracao";
 input bool ModoMineracao = false; // ModoMineracao
 input bool MineracaoAutomatica = true; // MineracaoAutomatica
+input uint SementeMineracao = 0; // SementeMineracao (otimize este campo; 0 = aleatoria fora do tester)
 
 input group "1.Nome";
 input string Nome = "EaMin";
@@ -1301,9 +1302,10 @@ bool ModuloMotorRegrasHabilitado();
 bool OsciladorHabilitado();
 bool CanalBandasHabilitado();
 bool ModoMineracaoAtivo();
+uint ObterSementeMineracaoEfetiva();
 void GerarParametrosAleatorios();
 
-const int TOTAL_REGRAS_MINERACAO = 4;
+#define TOTAL_REGRAS_MINERACAO 4
 
 bool gMineracaoAutomaticaConfigurada = false;
 uint gSementeMineracao = 0;
@@ -1409,6 +1411,17 @@ int NumeroAleatorio(const int minimo, const int maximo)
       return minimo;
 
    return minimo + (MathRand() % (maximo - minimo + 1));
+  }
+
+uint ObterSementeMineracaoEfetiva()
+  {
+   if(SementeMineracao > 0)
+      return SementeMineracao;
+
+   if((bool)MQLInfoInteger(MQL_TESTER) || (bool)MQLInfoInteger(MQL_OPTIMIZATION))
+      return 1;
+
+   return ((uint)GetTickCount() ^ (uint)GetMicrosecondCount() ^ (uint)TimeLocal());
   }
 
 bool ChanceAleatoria(const int chancePercentual)
@@ -1848,7 +1861,7 @@ void GerarParametrosAleatorios()
   {
    ResetarParametrosMinerados();
 
-   gSementeMineracao = ((uint)GetTickCount() ^ (uint)GetMicrosecondCount() ^ (uint)TimeLocal());
+   gSementeMineracao = ObterSementeMineracaoEfetiva();
    MathSrand((int)gSementeMineracao);
 
    for(int i = 0; i < TOTAL_REGRAS_MINERACAO; i++)
@@ -1927,145 +1940,6 @@ void LimparInterfaceMineracao()
 bool EstatisticaTesterValida(const double valor)
   {
    return MathIsValidNumber(valor);
-  }
-
-bool EstrategiaAprovadaParaExportacao(const double profitFactor, const double drawdownPct, const double trades)
-  {
-   if(profitFactor <= 1.3)
-      return false;
-
-   if(drawdownPct >= 25.0)
-      return false;
-
-   if(trades <= 150.0)
-      return false;
-
-   return true;
-  }
-
-string ObterResumoParametrosEstrategia()
-  {
-   if(UsandoParametrosMinerados())
-     {
-      return StringFormat("modo=mineracao_automatica|%s", gDescricaoEstrategiaMinerada);
-     }
-
-   string parametros = StringFormat("nome=%s|symbol=%s|tempo=%d|compra=%d|venda=%d|mercado=%d|tipo_operacional=%d|processamento=%d",
-                                    Nome,
-                                    _Symbol,
-                                    (int)TempoGrafico,
-                                    (int)OperarCompra,
-                                    (int)OperarVenda,
-                                    (int)Mercado,
-                                    (int)TipoOperacional,
-                                    (int)ModoProcessamento);
-
-   parametros += StringFormat("|volume=%.2f|spread=%d|ordem_entrada=%d|ordem_saida=%d",
-                              VolumeInicial,
-                              SpreadMaximo,
-                              (int)TipoOrdemEntrada,
-                              (int)TipoOrdemSaida);
-
-   parametros += StringFormat("|stop=%.5f|take=%.5f|be_sl=%.5f|trail_sl=%.5f|be_tp=%.5f|trail_tp=%.5f",
-                              StoplossInicialEfetivo(),
-                              TakeProfitInicialEfetivo(),
-                              InicioBreakEvenSLEfetivo(),
-                              PassoTrailingStopEfetivo(),
-                              InicioBreakEvenTP,
-                              PassoTrailingProfit);
-
-   if(ModuloMotorRegrasHabilitado())
-      parametros += StringFormat("|modulo=regras|compra=%d,%d,%d,%d|venda=%d,%d,%d,%d",
-                                 (int)ConfigurarIndicador1,
-                                 (int)ConfigurarIndicador2,
-                                 (int)ConfigurarIndicador3,
-                                 (int)ConfigurarIndicador4,
-                                 (int)ConfigurarIndicadorVenda1,
-                                 (int)ConfigurarIndicadorVenda2,
-                                 (int)ConfigurarIndicadorVenda3,
-                                 (int)ConfigurarIndicadorVenda4);
-   else
-      if(EntradaCruzamento != SINAL_ENTRADA_NAO_USAR)
-         parametros += StringFormat("|modulo=cruzamento|rapido=%d|lento=%d|entrada=%d|sentido=%d|saida=%d",
-                                    (int)SinalRapido,
-                                    (int)SinalLento,
-                                    (int)EntradaCruzamento,
-                                    (int)SentidoCruzamento,
-                                    (int)SaidaCruzamento);
-      else
-         if(OsciladorHabilitado())
-            parametros += StringFormat("|modulo=oscilador|indicador=%d|entrada=%d|sobrecompra=%.2f|sobrevenda=%.2f|sentido=%d|saida=%d",
-                                       (int)IndicadorSobreCompraVenda,
-                                       (int)EntradaSobreCompraVenda,
-                                       NivelSobrecompra,
-                                       NivelSobrevenda,
-                                       (int)SentidoSobreCompraVenda,
-                                       (int)SaidaSobreCompraVenda);
-         else
-            if(CanalBandasHabilitado())
-               parametros += StringFormat("|modulo=canal|indicador=%d|entrada=%d|sentido=%d|saida=%d",
-                                          (int)IndicadorCanalBandas,
-                                          (int)EntradaCanalBandas,
-                                          (int)SentidoCanalBandas,
-                                          (int)SaidaCanalBandas);
-            else
-               parametros += "|modulo=execucao_direta";
-
-   return parametros;
-  }
-
-void ExportarEstrategia(const double score)
-  {
-   const double profitFactor = TesterStatistics(STAT_PROFIT_FACTOR);
-   const double trades = TesterStatistics(STAT_TRADES);
-   const double drawdownPct = TesterStatistics(STAT_EQUITY_DDREL_PERCENT);
-
-   if(!EstatisticaTesterValida(profitFactor) || !EstatisticaTesterValida(trades) || !EstatisticaTesterValida(drawdownPct))
-      return;
-
-   if(!EstrategiaAprovadaParaExportacao(profitFactor, drawdownPct, trades))
-      return;
-
-   const ENUM_CONFIGURAR_INDICADORES indicadorPrimario = UsandoParametrosMinerados() ? ConfiguracaoMineradaPorSlot(true, 1) : CONFIG_IND_NAO_USAR;
-   const ENUM_CONFIGURAR_INDICADORES indicadorSecundario = UsandoParametrosMinerados() ? ConfiguracaoMineradaPorSlot(true, 2) : CONFIG_IND_NAO_USAR;
-   const string indicador1 = (UsandoParametrosMinerados() && indicadorPrimario != CONFIG_IND_NAO_USAR) ? NomeIndicadorMinerado(indicadorPrimario) : "";
-   const string indicador2 = (UsandoParametrosMinerados() && indicadorSecundario != CONFIG_IND_NAO_USAR) ? NomeIndicadorMinerado(indicadorSecundario) : "";
-   const string periodo1 = (UsandoParametrosMinerados() && indicadorPrimario != CONFIG_IND_NAO_USAR) ? IntegerToString(ObterPeriodoIndicadorMinerado(indicadorPrimario)) : "";
-   const string nivel1 = (UsandoParametrosMinerados() && Menu2Minerado(true, 1) == MENU_VALOR_ABSOLUTO) ? DoubleToString(ValorMinerado(true, 1), 2) : "";
-   const string stoploss = DoubleToString(StoplossInicialEfetivo(), 2);
-   const string takeprofit = DoubleToString(TakeProfitInicialEfetivo(), 2);
-   const string parametros = ObterResumoParametrosEstrategia();
-   int handle = FileOpen("estrategias_encontradas.csv",
-                         FILE_WRITE|FILE_READ|FILE_CSV|FILE_SHARE_READ|FILE_SHARE_WRITE,
-                         ';');
-
-   if(handle == INVALID_HANDLE)
-     {
-      if(!ModoMineracaoAtivo())
-         PrintFormat("Falha ao abrir arquivo de exportacao das estrategias. Erro=%d", GetLastError());
-      return;
-     }
-
-   const bool arquivoVazio = (FileSize(handle) == 0);
-   FileSeek(handle, 0, SEEK_END);
-
-   if(arquivoVazio)
-      FileWrite(handle, "score", "profit_factor", "trades", "drawdown", "indicador1", "indicador2", "periodo1", "nivel1", "sl", "tp", "parametros");
-
-   FileWrite(handle,
-             DoubleToString(score, 8),
-             DoubleToString(profitFactor, 4),
-             IntegerToString((int)trades),
-             DoubleToString(drawdownPct, 2),
-             indicador1,
-             indicador2,
-             periodo1,
-             nivel1,
-             stoploss,
-             takeprofit,
-             parametros);
-
-   FileClose(handle);
   }
 
 ENUM_TIMEFRAMES ObterTimeframe(const ENUM_TEMPO_GRAFICO tempoGrafico)
@@ -4226,9 +4100,6 @@ double OnTester()
    const double score = (profitFactor * payoff * MathSqrt(trades)) - (drawdownPct * 2.0);
    if(!EstatisticaTesterValida(score))
       return -1.0;
-
-   if(score > 0.0)
-      ExportarEstrategia(score);
 
    return score;
   }
